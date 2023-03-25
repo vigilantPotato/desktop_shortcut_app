@@ -1,5 +1,19 @@
+import csv
 import tkinter
 import webbrowser
+
+
+class CreateShortCutButtons():
+    """
+    read csv file and create ShortCut buttons.
+    create new csv file if not existing.
+    """
+
+    def __init__(self):
+        pass
+
+    def create_buttons(self, title, url):
+        pass
 
 
 class ShortCutButton(tkinter.Button):
