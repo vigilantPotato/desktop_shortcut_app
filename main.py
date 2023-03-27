@@ -1,6 +1,7 @@
 import csv
 import os
 import tkinter
+import tkinter.simpledialog
 import webbrowser
 
 
@@ -46,14 +47,35 @@ class ShortCutButton(tkinter.Button):
 class CreateNewButton(tkinter.Button):
     """
     issue #2
-    
+
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, master):
+        super().__init__(
+            master,
+            text="create new",
+            width=15,
+            command=self.ask_info,
+        )
+        self.pack()
+
+
+    def ask_info(self):
+        title = tkinter.simpledialog.askstring('input title', 'please input title')
+        if(title == None or title == ''):
+            return
+        url = tkinter.simpledialog.askstring('input URL', 'please input URL')
+        if(url == None or url == ''):
+            return
+        self.add_info_to_csv(title, url)
+    
+    def add_info_to_csv(self, title, url):
+        print(title, url)
 
 
 if __name__ == "__main__":
     root = tkinter.Tk()
-    CreateShortCutButtons(root)
+    create = CreateShortCutButtons()
+    create.create_shortcut_buttons(root)
+    c = CreateNewButton(root)
     root.mainloop()
