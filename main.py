@@ -43,6 +43,16 @@ class ShortCutButton(tkinter.Button):
             webbrowser.open(self.url)
 
 
+class CreateNewButton(tkinter.Button):
+    """
+    issue #2
+    
+    """
+
+    def __init__(self):
+        pass
+
+
 if __name__ == "__main__":
     root = tkinter.Tk()
     CreateShortCutButtons(root)
