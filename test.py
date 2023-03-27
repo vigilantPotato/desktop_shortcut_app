@@ -5,7 +5,8 @@ import tkinter
 
 class TestCreateShortCutButtons():
     def __init__(self, master):
-        b = CreateShortCutButtons(master)
+        b = CreateShortCutButtons()
+        b.create_shortcut_buttons(master)
 
 
 if __name__ == "__main__":

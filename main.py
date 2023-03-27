@@ -7,17 +7,19 @@ import webbrowser
 class CreateShortCutButtons():
     """
     read csv file and create ShortCut buttons.
-    create new csv file if not existing.
     """
 
-    def __init__(self, master):
+    def __init__(self):
+        pass
+
+    def create_shortcut_buttons(self, master):
         filename = os.path.join(os.getcwd(), 'list.csv')
         if os.path.exists(filename):
             open_file = open(filename)
             file_reader = csv.reader(open_file)
             for row in file_reader:
                 ShortCutButton(master, row[0], row[1])
- 
+
 
 class ShortCutButton(tkinter.Button):
     """
