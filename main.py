@@ -7,6 +7,7 @@ import webbrowser
 class CreateShortCutButtons():
     """
     read csv file and create ShortCut buttons.
+    csv file name is list.csv
     """
 
     def __init__(self):
