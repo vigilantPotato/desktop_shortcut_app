@@ -59,7 +59,6 @@ class CreateNewButton(tkinter.Button):
         )
         self.pack()
 
-
     def ask_info(self):
         title = tkinter.simpledialog.askstring('input title', 'please input title')
         if(title == None or title == ''):
@@ -70,7 +69,10 @@ class CreateNewButton(tkinter.Button):
         self.add_info_to_csv(title, url)
     
     def add_info_to_csv(self, title, url):
-        print(title, url)
+        filename = os.path.join(os.getcwd(), 'list.csv')
+        open_file = open(filename, 'a', newline='')
+        output_writer = csv.writer(open_file)
+        output_writer.writerow([title, url])
 
 
 if __name__ == "__main__":
