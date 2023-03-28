@@ -71,9 +71,9 @@ class CreateNewButton(tkinter.Button):
 
     def add_info_to_csv_and_restart(self, title, url):
         filename = os.path.join(os.getcwd(), 'list.csv')
-        open_file = open(filename, 'a', newline='')
-        output_writer = csv.writer(open_file)
-        output_writer.writerow([title, url])
+        with open(filename, 'a', newline='') as f:
+            output_writer = csv.writer(f)
+            output_writer.writerow([title, url])
         os.execv(sys.executable, ['python'] + sys.argv)
 
 
