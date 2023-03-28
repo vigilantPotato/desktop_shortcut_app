@@ -1,6 +1,8 @@
 import csv
 import os
+import sys
 import tkinter
+import tkinter.simpledialog
 import webbrowser
 
 
@@ -43,7 +45,41 @@ class ShortCutButton(tkinter.Button):
             webbrowser.open(self.url)
 
 
+class CreateNewButton(tkinter.Button):
+    """
+    ask user to input shortcut button's title and url when clicked
+    the information is saved to list.csv and restart this script
+    """
+
+    def __init__(self, master):
+        super().__init__(
+            master,
+            text="create new",
+            width=15,
+            command=self.ask_info,
+        )
+        self.pack()
+
+    def ask_info(self):
+        title = tkinter.simpledialog.askstring('input title', 'please input title')
+        if(title == None or title == ''):
+            return
+        url = tkinter.simpledialog.askstring('input URL', 'please input URL')
+        if(url == None or url == ''):
+            return
+        self.add_info_to_csv_and_restart(title, url)
+
+    def add_info_to_csv_and_restart(self, title, url):
+        filename = os.path.join(os.getcwd(), 'list.csv')
+        with open(filename, 'a', newline='') as f:
+            output_writer = csv.writer(f)
+            output_writer.writerow([title, url])
+        os.execv(sys.executable, ['python'] + sys.argv)
+
+
 if __name__ == "__main__":
     root = tkinter.Tk()
-    CreateShortCutButtons(root)
+    create = CreateShortCutButtons()
+    create.create_shortcut_buttons(root)
+    c = CreateNewButton(root)
     root.mainloop()
