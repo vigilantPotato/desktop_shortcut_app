@@ -1,5 +1,6 @@
 import csv
 import os
+import pandas as pd
 import sys
 import tkinter
 import tkinter.simpledialog
@@ -77,9 +78,42 @@ class CreateNewButton(tkinter.Button):
         os.execv(sys.executable, ['python'] + sys.argv)
 
 
+class DeleteButton(tkinter.Button):
+    """
+    ask user to input shortcut button's title when clicked
+    the title and related url is removed from list.csv and restart this script
+    """
+
+    def __init__(self, master):
+        super().__init__(
+            master,
+            text="delete",
+            width=15,
+            command=self.ask_title_to_delete,
+        )
+        self.pack()
+    
+    def ask_title_to_delete(self):
+        title = tkinter.simpledialog.askstring('delete title', 'please input title to delete')
+        if(title == None or title == ''):
+            return
+        self.delete_info_from_csv_and_restart(title)
+    
+    def delete_info_from_csv_and_restart(self, title):
+        filename = os.path.join(os.getcwd(), 'list.csv')
+        try:
+            df = pd.read_csv(filename,index_col=0, header=None)
+            df.drop(title, axis=0, inplace=True)
+            df.to_csv(filename, header=False)
+            os.execv(sys.executable, ['python'] + sys.argv)
+        except:
+            pass
+
+
 if __name__ == "__main__":
     root = tkinter.Tk()
     create = CreateShortCutButtons()
     create.create_shortcut_buttons(root)
     c = CreateNewButton(root)
+    d = DeleteButton(root)
     root.mainloop()
