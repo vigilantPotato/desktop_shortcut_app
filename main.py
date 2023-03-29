@@ -7,6 +7,25 @@ import tkinter.simpledialog
 import webbrowser
 
 
+class DisplayMainForm():
+    """
+    Display a main form with shortcut buttons, a create-new button and a delete button.
+    The form appears at the top-right of the monitor.
+    """
+
+    def __init__(self):
+        root = tkinter.Tk()
+        create = CreateShortCutButtons()
+        create.create_shortcut_buttons(root)
+        c = CreateNewButton(root)
+        d = DeleteButton(root)
+
+        screen_width = root.winfo_screenwidth()
+        x = 130
+        root.geometry('+%d+%d' % (screen_width-x, 0))
+        root.mainloop()
+
+
 class CreateShortCutButtons():
     """
     read csv file and create ShortCut buttons.
@@ -111,9 +130,4 @@ class DeleteButton(tkinter.Button):
 
 
 if __name__ == "__main__":
-    root = tkinter.Tk()
-    create = CreateShortCutButtons()
-    create.create_shortcut_buttons(root)
-    c = CreateNewButton(root)
-    d = DeleteButton(root)
-    root.mainloop()
+    DisplayMainForm()
