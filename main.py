@@ -1,4 +1,5 @@
 import csv
+import ctypes
 import os
 import pandas as pd
 import sys
@@ -14,6 +15,7 @@ class DisplayMainForm():
     """
 
     def __init__(self):
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)
         root = tkinter.Tk()
         create = CreateShortCutButtons()
         create.create_shortcut_buttons(root)
@@ -21,7 +23,7 @@ class DisplayMainForm():
         d = DeleteButton(root)
 
         screen_width = root.winfo_screenwidth()
-        x = 130
+        x = 174
         root.geometry('+%d+%d' % (screen_width-x, 0))
         root.mainloop()
 
