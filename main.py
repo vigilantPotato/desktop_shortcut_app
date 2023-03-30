@@ -54,6 +54,7 @@ class ShortCutButton(tkinter.Button):
         super().__init__(
             master,
             text=title,
+            background="cyan",
             width=15,
             command=self.shortcut,
         )
@@ -75,6 +76,7 @@ class CreateNewButton(tkinter.Button):
         super().__init__(
             master,
             text="create new",
+            background="SeaGreen1",
             width=15,
             command=self.ask_info,
         )
@@ -107,6 +109,7 @@ class DeleteButton(tkinter.Button):
         super().__init__(
             master,
             text="delete",
+            background="light pink",
             width=15,
             command=self.ask_title_to_delete,
         )
