@@ -1,6 +1,8 @@
 import csv
+import ctypes
 import os
 import pandas as pd
+import re
 import sys
 import tkinter
 import tkinter.simpledialog
@@ -14,16 +16,20 @@ class DisplayMainForm():
     """
 
     def __init__(self):
-        root = tkinter.Tk()
+        ctypes.windll.shcore.SetProcessDpiAwareness(1)
+        self.root = tkinter.Tk()
         create = CreateShortCutButtons()
-        create.create_shortcut_buttons(root)
-        c = CreateNewButton(root)
-        d = DeleteButton(root)
-
-        screen_width = root.winfo_screenwidth()
-        x = 130
-        root.geometry('+%d+%d' % (screen_width-x, 0))
-        root.mainloop()
+        create.create_shortcut_buttons(self.root)
+        c = CreateNewButton(self.root)
+        d = DeleteButton(self.root)
+        d.bind("<Map>", self.set_window_position_when_delete_button_is_displayed)
+        self.root.mainloop()
+    
+    def set_window_position_when_delete_button_is_displayed(self, event):
+        x = re.split("[x+]", self.root.geometry())
+        x = int(x[0])
+        screen_width = self.root.winfo_screenwidth()
+        self.root.geometry('+%d+%d' % (screen_width-x, 0))
 
 
 class CreateShortCutButtons():
