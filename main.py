@@ -5,7 +5,7 @@ import pandas as pd
 import re
 import sys
 import tkinter
-import tkinter.simpledialog
+import tkinter.simpledialog, tkinter.messagebox
 import webbrowser
 
 
@@ -90,7 +90,8 @@ class CreateNewButton(tkinter.Button):
 
     def ask_info(self):
         title = tkinter.simpledialog.askstring('input title', 'please input title')
-        if(title == None or title == ''):
+        if(title == None or title == '' or self.check_title_isin_csv(title)):
+            tkinter.messagebox.showerror("error", "Title is empty or already used.")
             return
         url = tkinter.simpledialog.askstring('input URL', 'please input URL')
         if(url == None or url == ''):
@@ -103,6 +104,11 @@ class CreateNewButton(tkinter.Button):
             output_writer = csv.writer(f)
             output_writer.writerow([title, url])
         os.execv(sys.executable, ['python'] + sys.argv)
+
+    def check_title_isin_csv(self, title):
+        filename = os.path.join(os.getcwd(), 'list.csv')
+        df = pd.read_csv(filename, index_col=0, header=None)
+        return title in df.index.values
 
 
 class DeleteButton(tkinter.Button):
