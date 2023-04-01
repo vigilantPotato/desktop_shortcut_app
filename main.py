@@ -18,8 +18,13 @@ class DisplayMainForm():
     def __init__(self):
         ctypes.windll.shcore.SetProcessDpiAwareness(1)
         self.root = tkinter.Tk()
+        l = tkinter.LabelFrame(
+            master=self.root,
+            text="short cut",
+            )
+        l.pack(ipadx=5, ipady=5)
         create = CreateShortCutButtons()
-        create.create_shortcut_buttons(self.root)
+        create.create_shortcut_buttons(l)
         c = CreateNewButton(self.root)
         d = DeleteButton(self.root)
         d.bind("<Map>", self.set_window_position_when_delete_button_is_displayed)
