@@ -24,7 +24,7 @@ class DisplayMainForm():
             )
         l.pack(ipadx=5, ipady=5)
         create = CreateShortCutButtons()
-        create.create_shortcut_buttons(self.root)
+        create.create_shortcut_buttons(l)
         c = CreateNewButton(self.root)
         d = DeleteButton(self.root)
         d.bind("<Map>", self.set_window_position_when_delete_button_is_displayed)
