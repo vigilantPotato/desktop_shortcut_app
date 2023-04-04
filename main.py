@@ -24,7 +24,7 @@ class DisplayMainForm():
             )
         l.pack(ipadx=5, ipady=5)
         create = CreateShortCutButtons()
-        create.create_shortcut_buttons(l)
+        create.create_shortcut_buttons(self.root)
         c = CreateNewButton(self.root)
         d = DeleteButton(self.root)
         d.bind("<Map>", self.set_window_position_when_delete_button_is_displayed)
@@ -32,7 +32,7 @@ class DisplayMainForm():
     
     def set_window_position_when_delete_button_is_displayed(self, event):
         x = re.split("[x+]", self.root.geometry())
-        x = int(x[0])
+        x = int(x[0]) + 10
         screen_width = self.root.winfo_screenwidth()
         self.root.geometry('+%d+%d' % (screen_width-x, 0))
 
