@@ -21,6 +21,7 @@ class DisplayMainForm():
         l = tkinter.LabelFrame(
             master=self.root,
             text="short cut",
+            relief="ridge",
             )
         l.pack(ipadx=5, ipady=5)
         create = CreateShortCutButtons()
@@ -70,7 +71,17 @@ class ShortCutButton(tkinter.Button):
             command=self.shortcut,
         )
         self.url = url
-        self.pack()
+        self.bind("<Motion>", self.mouse_on)
+        self.bind("<Leave>", self.mouse_leave)
+        self.pack(pady=1)
+    
+    def mouse_on(self, event):
+        self["background"] = "cyan4"
+        self["foreground"] = "white"
+
+    def mouse_leave(self, event):
+        self["background"] = "cyan"
+        self["foreground"] = "black"
 
     def shortcut(self):
         if self.url != "":
@@ -91,7 +102,17 @@ class CreateNewButton(tkinter.Button):
             width=15,
             command=self.ask_info,
         )
-        self.pack()
+        self.bind("<Motion>", self.mouse_on)
+        self.bind("<Leave>", self.mouse_leave)
+        self.pack(pady=1)
+    
+    def mouse_on(self, event):
+        self["background"] = "green"
+        self["foreground"] = "white"
+
+    def mouse_leave(self, event):
+        self["background"] = "SeaGreen1"
+        self["foreground"] = "black"
 
     def ask_info(self):
         title = tkinter.simpledialog.askstring('input title', 'please input title')
@@ -130,8 +151,18 @@ class DeleteButton(tkinter.Button):
             width=15,
             command=self.ask_title_to_delete,
         )
-        self.pack()
+        self.bind("<Motion>", self.mouse_on)
+        self.bind("<Leave>", self.mouse_leave)
+        self.pack(pady=1)
     
+    def mouse_on(self, event):
+        self["background"] = "red"
+        self["foreground"] = "white"
+
+    def mouse_leave(self, event):
+        self["background"] = "light pink"
+        self["foreground"] = "black"
+
     def ask_title_to_delete(self):
         title = tkinter.simpledialog.askstring('delete title', 'please input title to delete')
         if(title == None or title == ''):
