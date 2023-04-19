@@ -32,11 +32,9 @@ class DisplayMainForm():
         self.root.mainloop()
     
     def set_window_position_when_delete_button_is_displayed(self, event):
-        x = re.split("[x+]", self.root.geometry())
-        x = int(x[0]) + 10
-        screen_width = self.root.winfo_screenwidth()
-        self.root.geometry('+%d+%d' % (screen_width-x, 0))
-
+        frame = self.root.winfo_rootx() - self.root.winfo_x()
+        x = self.root.winfo_screenwidth() - self.root.winfo_width()
+        self.root.geometry('+%d+%d' % (x - frame, 0))
 
 class CreateShortCutButtons():
     """
