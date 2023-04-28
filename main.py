@@ -1,5 +1,6 @@
 import csv
 import ctypes
+import input_dialog
 import os
 import pandas as pd
 import re
@@ -93,6 +94,7 @@ class CreateNewButton(tkinter.Button):
     """
 
     def __init__(self, master):
+        self.root = master
         super().__init__(
             master,
             text="create new",
@@ -113,11 +115,12 @@ class CreateNewButton(tkinter.Button):
         self["foreground"] = "black"
 
     def ask_info(self):
-        title = tkinter.simpledialog.askstring('input title', 'please input title')
+        title, url = input_dialog.InputDialog(self.root).result
+
         if(title == None or title == '' or self.check_title_isin_csv(title)):
             tkinter.messagebox.showerror("error", "Title is empty or already used.")
             return
-        url = tkinter.simpledialog.askstring('input URL', 'please input URL')
+
         if(url == None or url == ''):
             return
         self.add_info_to_csv_and_restart(title, url)
