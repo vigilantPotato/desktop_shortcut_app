@@ -9,31 +9,45 @@ class InputDialog(tkinter.Toplevel):
     
     def __init__(self, root):
         super().__init__(root)
+        frame1 = tkinter.Frame(self)
+        frame1.pack(padx=5, pady=5)
+
         self.attributes("-topmost", True)
         self.title("Input information")
-        label = tkinter.Label(self, text="Title")
-        label.pack()
-        self.entry = tkinter.Entry(self, width=30)
-        self.entry.pack()
+        label = tkinter.Label(frame1, text="Title : ")
+        label.grid(row=0, column=0)
+        self.entry = tkinter.Entry(frame1, width=30)
+        self.entry.grid(row=0, column=1, sticky="w")
 
-        label2 = tkinter.Label(self, text="URL")
-        label2.pack()
-        self.entry2 = tkinter.Entry(self, width=50)
-        self.entry2.pack()
+        label2 = tkinter.Label(frame1, text="URL : ")
+        label2.grid(row=1, column=0)
+        self.entry2 = tkinter.Entry(frame1, width=50)
+        self.entry2.grid(row=1, column=1)
 
-        ok_button = tkinter.Button(
-            self,
+        frame2 = tkinter.Frame(self)
+        frame2.pack(padx=5, pady=5)
+        
+        self.ok_button = tkinter.Button(
+            frame2,
             text="OK",
+            width=15,
+            background="SeaGreen1",
             command=self.finished,
             )
-        ok_button.pack()
+        self.ok_button.bind("<Motion>", self.mouse_on_ok)
+        self.ok_button.bind("<Leave>", self.mouse_leave_ok)
+        self.ok_button.pack(side=tkinter.LEFT)
 
-        cancel_button = tkinter.Button(
-            self,
-            text="cancel",
+        self.cancel_button = tkinter.Button(
+            frame2,
+            text="Cancel",
+            width=15,
+            background="light pink",
             command=self.canceled,
         )
-        cancel_button.pack()
+        self.cancel_button.bind("<Motion>", self.mouse_on_cancel)
+        self.cancel_button.bind("<Leave>", self.mouse_leave_cancel)
+        self.cancel_button.pack(side=tkinter.LEFT)
 
         self.wait_visibility()
         self.grab_set()
@@ -47,6 +61,21 @@ class InputDialog(tkinter.Toplevel):
         self.result = None
         self.destroy()
 
+    def mouse_on_ok(self, event):
+        self.ok_button["background"] = "green"
+        self.ok_button["foreground"] = "white"
+
+    def mouse_leave_ok(self, event):
+        self.ok_button["background"] = "SeaGreen1"
+        self.ok_button["foreground"] = "black"
+
+    def mouse_on_cancel(self, event):
+        self.cancel_button["background"] = "red"
+        self.cancel_button["foreground"] = "white"
+
+    def mouse_leave_cancel(self, event):
+        self.cancel_button["background"] = "light pink"
+        self.cancel_button["foreground"] = "black"
 
 if __name__ == "__main__":
     ctypes.windll.shcore.SetProcessDpiAwareness(1)  #resolution setting
