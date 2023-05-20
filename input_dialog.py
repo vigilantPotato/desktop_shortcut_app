@@ -5,10 +5,13 @@ import ctypes
 class InputDialog(tkinter.Toplevel):
     """
     show a dialog which asks user to input something
+    return title and url as tuple
+    if canceled, return None
     """
     
     def __init__(self, root):
         super().__init__(root)
+        self.root = root
         frame1 = tkinter.Frame(self)
         frame1.pack(padx=5, pady=5)
 
@@ -47,8 +50,9 @@ class InputDialog(tkinter.Toplevel):
         )
         self.cancel_button.bind("<Motion>", self.mouse_on_cancel)
         self.cancel_button.bind("<Leave>", self.mouse_leave_cancel)
+        self.cancel_button.bind("<Map>", self.locate_form)
         self.cancel_button.pack(side=tkinter.LEFT)
-
+        self.protocol("WM_DELETE_WINDOW", self.canceled)
         self.wait_visibility()
         self.grab_set()
         self.wait_window()
@@ -76,6 +80,12 @@ class InputDialog(tkinter.Toplevel):
     def mouse_leave_cancel(self, event):
         self.cancel_button["background"] = "light pink"
         self.cancel_button["foreground"] = "black"
+
+    def locate_form(self, event):
+        x = (self.root.winfo_screenwidth() - self.winfo_width()) / 2
+        y = (self.root.winfo_screenheight() - self.winfo_height()) / 2
+        self.geometry("+%d+%d" % (x, y))
+
 
 if __name__ == "__main__":
     ctypes.windll.shcore.SetProcessDpiAwareness(1)  #resolution setting
