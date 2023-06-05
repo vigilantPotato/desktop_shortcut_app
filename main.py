@@ -115,16 +115,18 @@ class CreateNewButton(tkinter.Button):
         self["foreground"] = "black"
 
     def ask_info(self):
-        title, url = input_dialog.InputDialog(self.root).result
+        try:
+            title, url = input_dialog.InputDialog(self.root).result
+            if(title == None or title == '' or self.check_title_isin_csv(title)):
+                tkinter.messagebox.showerror("error", "Title is empty or already used.")
+                return
 
-        if(title == None or title == '' or self.check_title_isin_csv(title)):
-            tkinter.messagebox.showerror("error", "Title is empty or already used.")
-            return
-
-        if(url == None or url == ''):
-            return
-        self.add_info_to_csv_and_restart(title, url)
-
+            if(url == None or url == ''):
+                return
+            self.add_info_to_csv_and_restart(title, url)
+        except:
+            pass
+    
     def add_info_to_csv_and_restart(self, title, url):
         filename = os.path.join(os.getcwd(), 'list.csv')
         with open(filename, 'a', newline='') as f:
