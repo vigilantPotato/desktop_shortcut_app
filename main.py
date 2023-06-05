@@ -1,5 +1,6 @@
 import csv
 import ctypes
+import input_dialog
 import os
 import pandas as pd
 import re
@@ -21,6 +22,7 @@ class DisplayMainForm():
         l = tkinter.LabelFrame(
             master=self.root,
             text="short cut",
+            relief="ridge",
             )
         l.pack(ipadx=5, ipady=5)
         create = CreateShortCutButtons()
@@ -31,11 +33,9 @@ class DisplayMainForm():
         self.root.mainloop()
     
     def set_window_position_when_delete_button_is_displayed(self, event):
-        x = re.split("[x+]", self.root.geometry())
-        x = int(x[0]) + 10
-        screen_width = self.root.winfo_screenwidth()
-        self.root.geometry('+%d+%d' % (screen_width-x, 0))
-
+        frame = self.root.winfo_rootx() - self.root.winfo_x()
+        x = self.root.winfo_screenwidth() - self.root.winfo_width()
+        self.root.geometry('+%d+%d' % (x - frame, 0))
 
 class CreateShortCutButtons():
     """
@@ -70,7 +70,17 @@ class ShortCutButton(tkinter.Button):
             command=self.shortcut,
         )
         self.url = url
-        self.pack()
+        self.bind("<Motion>", self.mouse_on)
+        self.bind("<Leave>", self.mouse_leave)
+        self.pack(pady=1)
+    
+    def mouse_on(self, event):
+        self["background"] = "cyan4"
+        self["foreground"] = "white"
+
+    def mouse_leave(self, event):
+        self["background"] = "cyan"
+        self["foreground"] = "black"
 
     def shortcut(self):
         if self.url != "":
@@ -84,6 +94,7 @@ class CreateNewButton(tkinter.Button):
     """
 
     def __init__(self, master):
+        self.root = master
         super().__init__(
             master,
             text="create new",
@@ -91,18 +102,31 @@ class CreateNewButton(tkinter.Button):
             width=15,
             command=self.ask_info,
         )
-        self.pack()
+        self.bind("<Motion>", self.mouse_on)
+        self.bind("<Leave>", self.mouse_leave)
+        self.pack(pady=1)
+    
+    def mouse_on(self, event):
+        self["background"] = "green"
+        self["foreground"] = "white"
+
+    def mouse_leave(self, event):
+        self["background"] = "SeaGreen1"
+        self["foreground"] = "black"
 
     def ask_info(self):
-        title = tkinter.simpledialog.askstring('input title', 'please input title')
-        if(title == None or title == '' or self.check_title_isin_csv(title)):
-            tkinter.messagebox.showerror("error", "Title is empty or already used.")
-            return
-        url = tkinter.simpledialog.askstring('input URL', 'please input URL')
-        if(url == None or url == ''):
-            return
-        self.add_info_to_csv_and_restart(title, url)
+        try:
+            title, url = input_dialog.InputDialog(self.root).result
+            if(title == None or title == '' or self.check_title_isin_csv(title)):
+                tkinter.messagebox.showerror("error", "Title is empty or already used.")
+                return
 
+            if(url == None or url == ''):
+                return
+            self.add_info_to_csv_and_restart(title, url)
+        except:
+            pass
+    
     def add_info_to_csv_and_restart(self, title, url):
         filename = os.path.join(os.getcwd(), 'list.csv')
         with open(filename, 'a', newline='') as f:
@@ -130,8 +154,18 @@ class DeleteButton(tkinter.Button):
             width=15,
             command=self.ask_title_to_delete,
         )
-        self.pack()
+        self.bind("<Motion>", self.mouse_on)
+        self.bind("<Leave>", self.mouse_leave)
+        self.pack(pady=1)
     
+    def mouse_on(self, event):
+        self["background"] = "red"
+        self["foreground"] = "white"
+
+    def mouse_leave(self, event):
+        self["background"] = "light pink"
+        self["foreground"] = "black"
+
     def ask_title_to_delete(self):
         title = tkinter.simpledialog.askstring('delete title', 'please input title to delete')
         if(title == None or title == ''):
