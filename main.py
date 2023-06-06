@@ -123,16 +123,17 @@ class CreateNewButton(tkinter.Button):
 
             if(url == None or url == ''):
                 return
-            self.add_info_to_csv_and_restart(title, url)
+            self.add_info_to_csv_and_show_new_button(title, url)
         except:
             pass
     
-    def add_info_to_csv_and_restart(self, title, url):
+    def add_info_to_csv_and_show_new_button(self, title, url):
         filename = os.path.join(os.getcwd(), 'list.csv')
         with open(filename, 'a', newline='') as f:
             output_writer = csv.writer(f)
             output_writer.writerow([title, url])
-        os.execv(sys.executable, ['python'] + sys.argv)
+        w = self.root.winfo_children()
+        ShortCutButton(w[0], title, url)
 
     def check_title_isin_csv(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
