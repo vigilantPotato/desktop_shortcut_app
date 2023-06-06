@@ -133,7 +133,7 @@ class CreateNewButton(tkinter.Button):
             output_writer = csv.writer(f)
             output_writer.writerow([title, url])
         w = self.root.winfo_children()
-        ShortCutButton(w[0], title, url)
+        ShortCutButton(w[0], title, url) #w[0] is a LabelFrame widget
 
     def check_title_isin_csv(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
@@ -181,7 +181,7 @@ class DeleteButton(tkinter.Button):
             df.drop(title, axis=0, inplace=True)
             df.to_csv(filename, header=False)
             w = self.root.winfo_children()
-            for b in w[0].winfo_children():
+            for b in w[0].winfo_children(): #w[0] is a LabelFrame widget
                 if b["text"] == title:
                     b.destroy()
         except:
