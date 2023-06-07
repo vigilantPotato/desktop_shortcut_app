@@ -49,7 +49,7 @@ class CreateShortCutButtons():
     def create_shortcut_buttons(self, master):
         filename = os.path.join(os.getcwd(), 'list.csv')
         if os.path.exists(filename):
-            open_file = open(filename)
+            open_file = open(filename, encoding="utf-8")
             file_reader = csv.reader(open_file)
             for row in file_reader:
                 ShortCutButton(master, row[0], row[1])
@@ -129,7 +129,7 @@ class CreateNewButton(tkinter.Button):
     
     def add_info_to_csv_and_show_new_button(self, title, url):
         filename = os.path.join(os.getcwd(), 'list.csv')
-        with open(filename, 'a', newline='') as f:
+        with open(filename, 'a', newline='', encoding="utf-8") as f:
             output_writer = csv.writer(f)
             output_writer.writerow([title, url])
         w = self.root.winfo_children()
