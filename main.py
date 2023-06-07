@@ -123,16 +123,17 @@ class CreateNewButton(tkinter.Button):
 
             if(url == None or url == ''):
                 return
-            self.add_info_to_csv_and_restart(title, url)
+            self.add_info_to_csv_and_show_new_button(title, url)
         except:
             pass
     
-    def add_info_to_csv_and_restart(self, title, url):
+    def add_info_to_csv_and_show_new_button(self, title, url):
         filename = os.path.join(os.getcwd(), 'list.csv')
         with open(filename, 'a', newline='') as f:
             output_writer = csv.writer(f)
             output_writer.writerow([title, url])
-        os.execv(sys.executable, ['python'] + sys.argv)
+        w = self.root.winfo_children()
+        ShortCutButton(w[0], title, url) #w[0] is a LabelFrame widget
 
     def check_title_isin_csv(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
@@ -147,6 +148,7 @@ class DeleteButton(tkinter.Button):
     """
 
     def __init__(self, master):
+        self.root = master
         super().__init__(
             master,
             text="delete",
@@ -170,15 +172,18 @@ class DeleteButton(tkinter.Button):
         title = tkinter.simpledialog.askstring('delete title', 'please input title to delete')
         if(title == None or title == ''):
             return
-        self.delete_info_from_csv_and_restart(title)
+        self.delete_info_from_csv_and_remove_button(title)
     
-    def delete_info_from_csv_and_restart(self, title):
+    def delete_info_from_csv_and_remove_button(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
         try:
             df = pd.read_csv(filename,index_col=0, header=None)
             df.drop(title, axis=0, inplace=True)
             df.to_csv(filename, header=False)
-            os.execv(sys.executable, ['python'] + sys.argv)
+            w = self.root.winfo_children()
+            for b in w[0].winfo_children(): #w[0] is a LabelFrame widget
+                if b["text"] == title:
+                    b.destroy()
         except:
             pass
 
