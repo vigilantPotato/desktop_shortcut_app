@@ -53,6 +53,11 @@ class CreateShortCutButtons():
             file_reader = csv.reader(open_file)
             for row in file_reader:
                 ShortCutButton(master, row[0], row[1])
+        else:
+            with open(filename, 'a', newline='', encoding="utf-8") as f:
+                output_writer = csv.writer(f)
+                output_writer.writerow(["Google", "http://google.com"])
+            ShortCutButton(master, "Google", "http://google.com")
 
 
 class ShortCutButton(tkinter.Button):
