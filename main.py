@@ -48,16 +48,22 @@ class CreateShortCutButtons():
 
     def create_shortcut_buttons(self, master):
         filename = os.path.join(os.getcwd(), 'list.csv')
-        if os.path.exists(filename):
-            open_file = open(filename, encoding="utf-8")
+        if not os.path.exists(filename):
+            self.create_list(filename)
+        with open(filename, 'r', encoding="utf-8") as open_file:
             file_reader = csv.reader(open_file)
             for row in file_reader:
                 ShortCutButton(master, row[0], row[1])
-        else:
-            with open(filename, 'a', newline='', encoding="utf-8") as f:
-                output_writer = csv.writer(f)
-                output_writer.writerow(["Google", "http://google.com"])
-            ShortCutButton(master, "Google", "http://google.com")
+            if file_reader.line_num == 0:
+                row = self.create_list(filename)
+                ShortCutButton(master, row[0], row[1])
+
+    def create_list(self, filename):
+        initial_row = ["google", "https://google.com"]
+        with open(filename, 'a', newline='', encoding='utf-8') as f:
+            output_writer = csv.writer(f)
+            output_writer.writerow(initial_row)
+        return initial_row
 
 
 class ShortCutButton(tkinter.Button):
@@ -134,11 +140,12 @@ class CreateNewButton(tkinter.Button):
     
     def add_info_to_csv_and_show_new_button(self, title, url):
         filename = os.path.join(os.getcwd(), 'list.csv')
-        with open(filename, 'a', newline='', encoding="utf-8") as f:
-            output_writer = csv.writer(f)
-            output_writer.writerow([title, url])
-        w = self.root.winfo_children()
-        ShortCutButton(w[0], title, url) #w[0] is a LabelFrame widget
+        if os.path.exists(filename):
+            with open(filename, 'a', newline='', encoding="utf-8") as f:
+                output_writer = csv.writer(f)
+                output_writer.writerow([title, url])
+            w = self.root.winfo_children()
+            ShortCutButton(w[0], title, url) #w[0] is a LabelFrame widget
 
     def check_title_isin_csv(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
