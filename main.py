@@ -149,9 +149,11 @@ class CreateNewButton(tkinter.Button):
 
     def check_title_isin_csv(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
-        df = pd.read_csv(filename, index_col=0, header=None)
-        return title in df.index.values
-
+        try:
+            df = pd.read_csv(filename, index_col=0, header=None)
+            return title in df.index.values
+        except pd.errors.EmptyDataError:
+            return False
 
 class DeleteButton(tkinter.Button):
     """
