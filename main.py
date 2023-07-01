@@ -51,6 +51,7 @@ class CreateShortCutButtons():
             self.create_list(filename)
         with open(filename, 'r', encoding="utf-8") as open_file:
             file_reader = csv.reader(open_file)
+            header = next(file_reader)
             for row in file_reader:
                 ShortCutButton(master, row)
             if file_reader.line_num == 0:
@@ -58,9 +59,11 @@ class CreateShortCutButtons():
                 ShortCutButton(master, row)
 
     def create_list(self, filename):
-        initial_row = ["google", "https://google.com", 0, 0]
+        initial_row = ["google", "https://google.com", 1]
+        header = ["title", "url", "order"]
         with open(filename, 'a', newline='', encoding='utf-8') as f:
             output_writer = csv.writer(f)
+            output_writer.writerow(header)
             output_writer.writerow(initial_row)
         return initial_row
 
@@ -80,9 +83,11 @@ class ShortCutButton(tkinter.Button):
             command=self.shortcut,
         )
         self.url = row[1]
+        self.order = int(row[2])
         self.root = master
         self.dummy_button = None
         self.y_position = 0
+        self.frame_width = 0
         self.bind("<Motion>", self.mouse_on)
         self.bind("<Leave>", self.mouse_leave)
         self.bind("<B1-Motion>", self.when_dragged)
@@ -95,7 +100,8 @@ class ShortCutButton(tkinter.Button):
     def when_dragged(self, event):
         #ダミーボタンがない場合、全ウィジェット情報を取得後にダミー生成、上下ボタンの情報取得
         if not self.dummy_button:
-            self.get_widget_info()      #全widgetの情報を辞書型で取得 key: y, value: text
+            print("show dummy")
+            self.get_widget_info()      #全widgetの情報を辞書型で取得 key: order, value: button widget
             self["state"] = "disable"   #自身をdisable
             self.dummy_button = tkinter.Button(
                 self.root,
@@ -103,49 +109,44 @@ class ShortCutButton(tkinter.Button):
                 bg = "red",
                 width = self["width"],
             )
-        
-        if self.dragged_button_index == 0:
-            #一番上のボタンをドラッグしている時
-            y_up = False
-            y_down = self.sorted_y_position[self.dragged_button_index + 1]
-        elif self.dragged_button_index == len(self.sorted_y_position) - 1:
-            #一番下のボタンをドラッグしている時
-            y_up = self.sorted_y_position[self.dragged_button_index - 1]
-            y_down = False
-        else:
-            #中間のボタンをドラッグしている時
-            y_up = self.sorted_y_position[self.dragged_button_index - 1]
-            y_down = self.sorted_y_position[self.dragged_button_index + 1]
+            self.frame_widthx = self.button_info[1].winfo_rootx() - self.root.winfo_rootx()
+            self.frame_widthy = self.button_info[1].winfo_rooty() - self.root.winfo_rooty()
 
         #dragされたらdummy_buttonをポインタに合わせて表示
-        x_dummy = self.winfo_x() + event.x - self.winfo_width() / 2
-        y_dummy = self.winfo_y() + event.y - self.winfo_height() / 2
+        x_dummy = self.winfo_x() - self.frame_widthx + event.x
+        y_dummy = self.winfo_y() - self.frame_widthy + event.y
         self.dummy_button.place(
             x = x_dummy,
             y = y_dummy,
         )
 
-        #ダミーボタンの位置が上下ボタン位置を超えたとき、入れ替え
-        if y_up is not False and y_dummy < y_up:
-            self.swap_button(y_up)
-        elif  y_down is not False and y_dummy > y_down:
-            self.swap_button(y_down)
+        if self.order == 1:
+            above_y = None
+            below_y = self.button_info[self.order + 1].winfo_y()
+        elif self.order == len(self.widgets):
+            above_y = self.button_info[self.order - 1].winfo_y()
+            below_y = None
+        else:
+            above_y = self.button_info[self.order - 1].winfo_y()
+            below_y = self.button_info[self.order + 1].winfo_y()
+
+        if above_y is not None and 0 < self.dummy_button.winfo_y() < self.winfo_y():
+            self.swap_button(self.order - 1)
+        elif  below_y is not None and 0 < self.dummy_button.winfo_y() > below_y:
+            self.swap_button(self.order + 1)
     
     def swap_button(self, y_target):
         """
         ダミーを削除し、y_targetとselfを入れ替え
         """
-        target_button = self.button_info[y_target]  #widget        
-        self.button_info[self.winfo_y()] = target_button
-        self.button_info[target_button.winfo_y()] = self
-       
+        self.delete_dummy_button()
+        self.button_info[y_target].order = self.order
+        self.order = y_target
+        self.get_widget_info()        
         for w in self.widgets:
             w.pack_forget()
-        
-        for y in self.sorted_y_position:
-            self.button_info[y].pack(pady=1)
-
-        self.delete_dummy_button()
+        for i in range(1, len(self.button_info) + 1):
+            self.button_info[i].pack(pady=1)
 
     def delete_dummy_button(self):
         if self.dummy_button:
@@ -158,9 +159,7 @@ class ShortCutButton(tkinter.Button):
         self.button_info = {}
         for w in self.widgets:
             if w.winfo_ismapped():
-                self.button_info[w.winfo_y()] = w
-        self.sorted_y_position = sorted(self.button_info.keys())
-        self.dragged_button_index = self.sorted_y_position.index(self.winfo_y())
+                self.button_info[w.order] = w
 
     def mouse_on(self, event):
         self["background"] = "cyan4"
@@ -174,7 +173,7 @@ class ShortCutButton(tkinter.Button):
 
     def shortcut(self):
         if self.url != "":
-            print("clicked")
+            print(self.order)
             #webbrowser.open(self.url)
 
 
@@ -219,13 +218,14 @@ class CreateNewButton(tkinter.Button):
             pass
     
     def add_info_to_csv_and_show_new_button(self, title, url):
+        w = self.root.winfo_children()
+        button_order = len(w[0].winfo_children()) + 1
         filename = os.path.join(os.getcwd(), 'list.csv')
         if os.path.exists(filename):
             with open(filename, 'a', newline='', encoding="utf-8") as f:
                 output_writer = csv.writer(f)
-                output_writer.writerow([title, url])
-            w = self.root.winfo_children()
-            ShortCutButton(w[0], [title, url]) #w[0] is a LabelFrame widget
+                output_writer.writerow([title, url, button_order])
+            ShortCutButton(w[0], [title, url, button_order]) #w[0] is a LabelFrame widget
 
     def check_title_isin_csv(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
