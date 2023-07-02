@@ -100,7 +100,6 @@ class ShortCutButton(tkinter.Button):
     def when_dragged(self, event):
         #ダミーボタンがない場合、全ウィジェット情報を取得後にダミー生成、上下ボタンの情報取得
         if not self.dummy_button:
-            print("show dummy")
             self.get_widget_info()      #全widgetの情報を辞書型で取得 key: order, value: button widget
             self["state"] = "disable"   #自身をdisable
             self.dummy_button = tkinter.Button(
@@ -142,11 +141,23 @@ class ShortCutButton(tkinter.Button):
         self.delete_dummy_button()
         self.button_info[y_target].order = self.order
         self.order = y_target
-        self.get_widget_info()        
+        self.get_widget_info()
         for w in self.widgets:
             w.pack_forget()
         for i in range(1, len(self.button_info) + 1):
             self.button_info[i].pack(pady=1)
+        self.update_csv_file()
+
+    def update_csv_file(self):
+        filename = os.path.join(os.getcwd(), 'list.csv')
+        if os.path.exists(filename):
+            with open(filename, 'w', newline='', encoding="utf-8") as f:
+                header = ["title", "url", "order"]
+                output_writer = csv.writer(f)
+                output_writer.writerow(header)
+                for i in range(1, len(self.button_info) + 1):
+                    b = self.button_info[i]
+                    output_writer.writerow([b["text"], b.url, b.order])
 
     def delete_dummy_button(self):
         if self.dummy_button:
