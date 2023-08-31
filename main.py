@@ -88,6 +88,7 @@ class ShortCutButton(tkinter.Button):
         self.dummy_button = None
         self.y_position = 0
         self.frame_width = 0
+        self.dummy_x = 0
         self.bind("<Motion>", self.mouse_on)
         self.bind("<Leave>", self.mouse_leave)
         self.bind("<B1-Motion>", self.when_dragged)
@@ -96,6 +97,9 @@ class ShortCutButton(tkinter.Button):
     
     def when_released(self, event):
         self.delete_dummy_button()
+        if self.dummy_x < 0:
+            self.delete_info_from_csv_and_remove_button(self["text"])
+            self.destroy()
 
     def when_dragged(self, event):
         #ダミーボタンがない場合、全ウィジェット情報を取得後にダミー生成、上下ボタンの情報取得
@@ -128,6 +132,8 @@ class ShortCutButton(tkinter.Button):
         else:
             above_y = self.button_info[self.order - 1].winfo_y()
             below_y = self.button_info[self.order + 1].winfo_y()
+
+        self.dummy_x = self.dummy_button.winfo_x()
 
         if above_y is not None and 0 < self.dummy_button.winfo_y() < self.winfo_y():
             self.swap_button(self.order - 1)
@@ -187,6 +193,27 @@ class ShortCutButton(tkinter.Button):
             print(self.order)
             #webbrowser.open(self.url)
 
+    def delete_info_from_csv_and_remove_button(self, title):
+        filename = os.path.join(os.getcwd(), 'list.csv')
+        try:
+            df = pd.read_csv(filename,index_col=0, header=None)
+            df.drop(title, axis=0, inplace=True)
+            df.to_csv(filename, header=False)
+        except:
+            pass
+
+        """
+        update the order of widgets
+        """
+        del self.button_info[self.order]
+        for i in range(1, len(self.button_info) + 1):
+            
+            if i >= self.order:
+                self.button_info[i] = self.button_info[i+1]
+                self.button_info[i].order = i
+                del self.button_info[i+1]
+
+        self.update_csv_file()
 
 class CreateNewButton(tkinter.Button):
     """
