@@ -114,30 +114,31 @@ class ShortCutButton(tkinter.Button):
             self.frame_widthx = self.button_info[1].winfo_rootx() - self.root.winfo_rootx()
             self.frame_widthy = self.button_info[1].winfo_rooty() - self.root.winfo_rooty()
 
-        #dragされたらdummy_buttonをポインタに合わせて表示
-        x_dummy = self.winfo_x() - self.frame_widthx + event.x
-        y_dummy = self.winfo_y() - self.frame_widthy + event.y
-        self.dummy_button.place(
-            x = x_dummy,
-            y = y_dummy,
-        )
+        if len(self.button_info) != 1:
+            #dragされたらdummy_buttonをポインタに合わせて表示
+            x_dummy = self.winfo_x() - self.frame_widthx + event.x
+            y_dummy = self.winfo_y() - self.frame_widthy + event.y
+            self.dummy_button.place(
+                x = x_dummy,
+                y = y_dummy,
+            )
 
-        if self.order == 1:
-            above_y = None
-            below_y = self.button_info[self.order + 1].winfo_y()
-        elif self.order == len(self.widgets):
-            above_y = self.button_info[self.order - 1].winfo_y()
-            below_y = None
-        else:
-            above_y = self.button_info[self.order - 1].winfo_y()
-            below_y = self.button_info[self.order + 1].winfo_y()
+            if self.order == 1:
+                above_y = None
+                below_y = self.button_info[self.order + 1].winfo_y()
+            elif self.order == len(self.widgets):
+                above_y = self.button_info[self.order - 1].winfo_y()
+                below_y = None
+            else:
+                above_y = self.button_info[self.order - 1].winfo_y()
+                below_y = self.button_info[self.order + 1].winfo_y()
 
-        self.dummy_x = self.dummy_button.winfo_x()
+            self.dummy_x = self.dummy_button.winfo_x()
 
-        if above_y is not None and 0 < self.dummy_button.winfo_y() < self.winfo_y():
-            self.swap_button(self.order - 1)
-        elif  below_y is not None and 0 < self.dummy_button.winfo_y() > below_y:
-            self.swap_button(self.order + 1)
+            if above_y is not None and 0 < self.dummy_button.winfo_y() < self.winfo_y():
+                self.swap_button(self.order - 1)
+            elif  below_y is not None and 0 < self.dummy_button.winfo_y() > below_y:
+                self.swap_button(self.order + 1)
     
     def swap_button(self, y_target):
         """
