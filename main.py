@@ -21,11 +21,10 @@ class DisplayMainForm():
         self.root = tkinter.Tk()
         short_cut_buttons_in_label = CreateShortCutButtons(self.root)
         c = CreateNewButton(self.root)
-        d = DeleteButton(self.root)
-        d.bind("<Map>", self.set_window_position_when_delete_button_is_displayed)
+        c.bind("<Map>", self.set_window_position_when_createnew_button_is_displayed)
         self.root.mainloop()
     
-    def set_window_position_when_delete_button_is_displayed(self, event):
+    def set_window_position_when_createnew_button_is_displayed(self, event):
         frame = self.root.winfo_rootx() - self.root.winfo_x()
         x = self.root.winfo_screenwidth() - self.root.winfo_width()
         self.root.geometry('+%d+%d' % (x - frame, 0))
@@ -272,52 +271,6 @@ class CreateNewButton(tkinter.Button):
             return title in df.index.values
         except pd.errors.EmptyDataError:
             return False
-
-class DeleteButton(tkinter.Button):
-    """
-    ask user to input shortcut button's title when clicked
-    the title and related url is removed from list.csv and restart this script
-    """
-
-    def __init__(self, master):
-        self.root = master
-        super().__init__(
-            master,
-            text="delete",
-            background="light pink",
-            width=15,
-            command=self.ask_title_to_delete,
-        )
-        self.bind("<Motion>", self.mouse_on)
-        self.bind("<Leave>", self.mouse_leave)
-        self.pack(pady=1)
-    
-    def mouse_on(self, event):
-        self["background"] = "red"
-        self["foreground"] = "white"
-
-    def mouse_leave(self, event):
-        self["background"] = "light pink"
-        self["foreground"] = "black"
-
-    def ask_title_to_delete(self):
-        title = tkinter.simpledialog.askstring('delete title', 'please input title to delete')
-        if(title == None or title == ''):
-            return
-        self.delete_info_from_csv_and_remove_button(title)
-    
-    def delete_info_from_csv_and_remove_button(self, title):
-        filename = os.path.join(os.getcwd(), 'list.csv')
-        try:
-            df = pd.read_csv(filename,index_col=0, header=None)
-            df.drop(title, axis=0, inplace=True)
-            df.to_csv(filename, header=False)
-            w = self.root.winfo_children()
-            for b in w[0].winfo_children(): #w[0] is a LabelFrame widget
-                if b["text"] == title:
-                    b.destroy()
-        except:
-            pass
 
 
 if __name__ == "__main__":
