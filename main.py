@@ -100,7 +100,7 @@ class ShortCutButton(tkinter.Button):
             self.delete_info_from_csv_and_remove_button(self["text"])
             self.destroy()
         elif self.dummy_x > 10: #to be modified
-            self.modify_button_info_and_show_button_again()
+            self.modify_button_info()
 
     def when_dragged(self, event):
         #ダミーボタンがない場合、全ウィジェット情報を取得後にダミー生成、上下ボタンの情報取得
@@ -216,7 +216,7 @@ class ShortCutButton(tkinter.Button):
 
         self.update_csv_file()
 
-    def modify_button_info_and_show_button_again(self):
+    def modify_button_info(self):
         dialog = ButtonInformationInputDialog(self.root)
         title, url = dialog.ask_info(self["text"], self.url)
         self["text"] = title
