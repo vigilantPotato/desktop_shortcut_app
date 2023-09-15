@@ -99,9 +99,10 @@ class ShortCutButton(tkinter.Button):
         if self.dummy_x < 0:
             self.delete_info_from_csv_and_remove_button(self["text"])
             self.destroy()
-        elif self.dummy_x > 10: #to be modified
+        elif self.dummy_x > self.winfo_width():
             self.modify_button_info()
-
+        self.dummy_x = 0
+        
     def when_dragged(self, event):
         #ダミーボタンがない場合、全ウィジェット情報を取得後にダミー生成、上下ボタンの情報取得
         if not self.dummy_button:
@@ -191,7 +192,7 @@ class ShortCutButton(tkinter.Button):
 
     def shortcut(self):
         if self.url != "":
-            print(self.order)
+            print(self["text"], self.url)
             #webbrowser.open(self.url)
 
     def delete_info_from_csv_and_remove_button(self, title):
@@ -226,7 +227,7 @@ class ShortCutButton(tkinter.Button):
             self.update_csv_file()
         except:
             pass
-        
+
 
 class CreateNewButton(tkinter.Button):
     """
