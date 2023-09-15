@@ -218,12 +218,15 @@ class ShortCutButton(tkinter.Button):
 
     def modify_button_info(self):
         dialog = ButtonInformationInputDialog(self.root)
-        title, url = dialog.ask_info(self["text"], self.url)
-        self["text"] = title
-        self.url = url
-        self.get_widget_info()
-        self.update_csv_file()
-
+        try:
+            title, url = dialog.ask_info(self["text"], self.url)
+            self["text"] = title
+            self.url = url
+            self.get_widget_info()
+            self.update_csv_file()
+        except:
+            pass
+        
 
 class CreateNewButton(tkinter.Button):
     """
