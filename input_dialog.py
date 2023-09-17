@@ -9,7 +9,7 @@ class InputDialog(tkinter.Toplevel):
     if canceled, return None
     """
     
-    def __init__(self, root):
+    def __init__(self, root, default_title=None, default_url=None):
         super().__init__(root)
         self.root = root
         frame1 = tkinter.Frame(self)
@@ -20,11 +20,15 @@ class InputDialog(tkinter.Toplevel):
         label = tkinter.Label(frame1, text="Title : ")
         label.grid(row=0, column=0)
         self.entry = tkinter.Entry(frame1, width=30)
+        if default_title:
+            self.entry.insert(0, default_title)
         self.entry.grid(row=0, column=1, sticky="w")
 
         label2 = tkinter.Label(frame1, text="URL : ")
         label2.grid(row=1, column=0)
         self.entry2 = tkinter.Entry(frame1, width=50)
+        if default_url:
+            self.entry2.insert(0, default_url)
         self.entry2.grid(row=1, column=1)
 
         frame2 = tkinter.Frame(self)
