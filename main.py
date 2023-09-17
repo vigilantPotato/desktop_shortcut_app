@@ -99,7 +99,10 @@ class ShortCutButton(tkinter.Button):
         if self.dummy_x < 0:
             self.delete_info_from_csv_and_remove_button(self["text"])
             self.destroy()
-
+        elif self.dummy_x > self.winfo_width():
+            self.modify_button_info()
+        self.dummy_x = 0
+        
     def when_dragged(self, event):
         #ダミーボタンがない場合、全ウィジェット情報を取得後にダミー生成、上下ボタンの情報取得
         if not self.dummy_button:
@@ -114,15 +117,16 @@ class ShortCutButton(tkinter.Button):
             self.frame_widthx = self.button_info[1].winfo_rootx() - self.root.winfo_rootx()
             self.frame_widthy = self.button_info[1].winfo_rooty() - self.root.winfo_rooty()
 
+        #dragされたらdummy_buttonをポインタに合わせて表示
+        x_dummy = self.winfo_x() - self.frame_widthx + event.x
+        y_dummy = self.winfo_y() - self.frame_widthy + event.y
+        self.dummy_button.place(
+            x = x_dummy,
+            y = y_dummy,
+        )
+        self.dummy_x = self.dummy_button.winfo_x()
+        
         if len(self.button_info) != 1:
-            #dragされたらdummy_buttonをポインタに合わせて表示
-            x_dummy = self.winfo_x() - self.frame_widthx + event.x
-            y_dummy = self.winfo_y() - self.frame_widthy + event.y
-            self.dummy_button.place(
-                x = x_dummy,
-                y = y_dummy,
-            )
-
             if self.order == 1:
                 above_y = None
                 below_y = self.button_info[self.order + 1].winfo_y()
@@ -132,8 +136,6 @@ class ShortCutButton(tkinter.Button):
             else:
                 above_y = self.button_info[self.order - 1].winfo_y()
                 below_y = self.button_info[self.order + 1].winfo_y()
-
-            self.dummy_x = self.dummy_button.winfo_x()
 
             if above_y is not None and 0 < self.dummy_button.winfo_y() < self.winfo_y():
                 self.swap_button(self.order - 1)
@@ -190,7 +192,7 @@ class ShortCutButton(tkinter.Button):
 
     def shortcut(self):
         if self.url != "":
-            print(self.order)
+            print(self["text"], self.url)
             #webbrowser.open(self.url)
 
     def delete_info_from_csv_and_remove_button(self, title):
@@ -215,6 +217,18 @@ class ShortCutButton(tkinter.Button):
 
         self.update_csv_file()
 
+    def modify_button_info(self):
+        dialog = ButtonInformationInputDialog(self.root)
+        try:
+            title, url = dialog.ask_info(self["text"], self.url)
+            self["text"] = title
+            self.url = url
+            self.get_widget_info()
+            self.update_csv_file()
+        except:
+            pass
+
+
 class CreateNewButton(tkinter.Button):
     """
     ask user to input shortcut button's title and url when clicked
@@ -234,6 +248,10 @@ class CreateNewButton(tkinter.Button):
         self.bind("<Leave>", self.mouse_leave)
         self.pack(pady=1)
     
+    def ask_info(self):
+        dialog = ButtonInformationInputDialog(self.root)
+        dialog.ask_info()
+
     def mouse_on(self, event):
         self["background"] = "green"
         self["foreground"] = "white"
@@ -242,16 +260,34 @@ class CreateNewButton(tkinter.Button):
         self["background"] = "SeaGreen1"
         self["foreground"] = "black"
 
-    def ask_info(self):
+
+class ButtonInformationInputDialog():
+    """
+    ask user to input button information.
+    Methods:
+    1. ask_info:
+        When create a new button, both the default_title and default_url must be None. Input data will be saved to the CSV file and then create a new button.
+        When modify button info, the default_title and default_url must be the title and url you want to modify. The new title and url is returned.
+    """
+
+    def __init__(self, root):
+        self.root = root
+
+    def ask_info(self, default_title=None, default_url=None):
         try:
-            title, url = input_dialog.InputDialog(self.root).result
+            title, url = input_dialog.InputDialog(self.root, default_title, default_url).result
             if(title == None or title == '' or self.check_title_isin_csv(title)):
                 tkinter.messagebox.showerror("error", "Title is empty or already used.")
                 return
 
             if(url == None or url == ''):
                 return
-            self.add_info_to_csv_and_show_new_button(title, url)
+
+            if default_title:
+                return(title, url)
+            else:
+                self.add_info_to_csv_and_show_new_button(title, url)
+
         except:
             pass
     
