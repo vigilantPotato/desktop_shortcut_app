@@ -19,11 +19,11 @@ class InputDialog(tkinter.Toplevel):
         demo_frame = tkinter.LabelFrame(self, text="Demo button")
         demo_frame.pack()
         self.demo_button = TestButton(demo_frame, self.var)
-        self.demo_button.pack(padx=10, pady=10)
+        self.demo_button.pack(padx=5, pady=5)
 
         #input information frame
         input_frame = tkinter.LabelFrame(self, text="Input button information")
-        input_frame.pack(padx=5, pady=5)
+        input_frame.pack()
 
         #title
         self.title("Input information")
@@ -45,11 +45,11 @@ class InputDialog(tkinter.Toplevel):
         #color setting
         color_setting_frame = tkinter.LabelFrame(self, text="Button color setting")
         color_setting_frame.pack()
-        self.color_select = ColorSelectButton(color_setting_frame, text="background", button=self.demo_button)
-        self.color_select.pack(side=tkinter.LEFT)
+        self.color_select = ColorSelectButton(color_setting_frame, text="Background", button=self.demo_button)
+        self.color_select.pack(side=tkinter.LEFT, padx=5, pady=5)
 
-        self.color_select = ColorSelectButton(color_setting_frame, text="text color", button=self.demo_button)
-        self.color_select.pack(side=tkinter.LEFT)
+        self.color_select = ColorSelectButton(color_setting_frame, text="Text", button=self.demo_button)
+        self.color_select.pack(side=tkinter.LEFT, padx=5, pady=5)
 
         frame2 = tkinter.Frame(self)
         frame2.pack(padx=5, pady=5)
@@ -124,9 +124,9 @@ class ColorSelectButton(tkinter.Button):
 
     def color_select(self):
         color = colorchooser.askcolor()[1]
-        if self["text"] == "background":
+        if self["text"] == "Background":
             self.button["bg"] = color
-        elif self["text"] == "text color":
+        elif self["text"] == "Text":
             self.button["fg"] = color
 
 
