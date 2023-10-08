@@ -123,11 +123,16 @@ class ColorSelectButton(tkinter.Button):
         self.button = button
 
     def color_select(self):
-        color = colorchooser.askcolor()[1]
-        if self["text"] == "Background":
-            self.button["bg"] = color
-        elif self["text"] == "Text":
-            self.button["fg"] = color
+        self["state"] = "disable"
+        color = colorchooser.askcolor(title=self["text"])[1]
+        self["state"] = "normal"
+        try:
+            if self["text"] == "Background":
+                self.button["bg"] = color
+            elif self["text"] == "Text":
+                self.button["fg"] = color
+        except:
+            pass
 
 
 class TestButton(tkinter.Button):
@@ -152,5 +157,4 @@ class TestButton(tkinter.Button):
 if __name__ == "__main__":
     ctypes.windll.shcore.SetProcessDpiAwareness(1)  #resolution setting
     root = tkinter.Tk()
-    print(InputDialog(root).result)
     root.mainloop()

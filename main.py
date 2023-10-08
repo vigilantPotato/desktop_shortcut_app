@@ -58,13 +58,13 @@ class CreateShortCutButtons():
                 ShortCutButton(master, row)
 
     def create_list(self, filename):
-        initial_row = ["google", "https://google.com", 1]
-        header = ["title", "url", "order"]
+        #initial_row = ["google", "https://google.com", 1, ]
+        header = ["title", "url", "order", "bg", "fg"]
         with open(filename, 'a', newline='', encoding='utf-8') as f:
             output_writer = csv.writer(f)
             output_writer.writerow(header)
-            output_writer.writerow(initial_row)
-        return initial_row
+            #output_writer.writerow(initial_row)
+        #return initial_row
 
 
 class ShortCutButton(tkinter.Button):
@@ -74,16 +74,19 @@ class ShortCutButton(tkinter.Button):
     """
 
     def __init__(self, master, row):
+        self.url = row[1]
+        self.order = int(row[2])
+        self.bg = row[3]
+        self.fg = row[4]
+        self.root = master
         super().__init__(
             master,
             text=row[0],
-            background="cyan",
+            background=self.bg,
+            foreground=self.fg,
             width=15,
             command=self.shortcut,
         )
-        self.url = row[1]
-        self.order = int(row[2])
-        self.root = master
         self.dummy_button = None
         self.y_position = 0
         self.frame_width = 0
@@ -160,12 +163,12 @@ class ShortCutButton(tkinter.Button):
         filename = os.path.join(os.getcwd(), 'list.csv')
         if os.path.exists(filename):
             with open(filename, 'w', newline='', encoding="utf-8") as f:
-                header = ["title", "url", "order"]
+                header = ["title", "url", "order", "bg", "fg"]
                 output_writer = csv.writer(f)
                 output_writer.writerow(header)
                 for i in range(1, len(self.button_info) + 1):
                     b = self.button_info[i]
-                    output_writer.writerow([b["text"], b.url, b.order])
+                    output_writer.writerow([b["text"], b.url, b.order, b["bg"], b["fg"]])
 
     def delete_dummy_button(self):
         if self.dummy_button:
@@ -187,8 +190,8 @@ class ShortCutButton(tkinter.Button):
             self["state"] = "normal"
 
     def mouse_leave(self, event):
-        self["background"] = "cyan"
-        self["foreground"] = "black"
+        self["background"] = self.bg
+        self["foreground"] = self.fg
 
     def shortcut(self):
         if self.url != "":
@@ -275,7 +278,7 @@ class ButtonInformationInputDialog():
 
     def ask_info(self, default_title=None, default_url=None):
         try:
-            title, url = input_dialog.InputDialog(self.root, default_title, default_url).result
+            title, url, bg, fg = input_dialog.InputDialog(self.root, default_title, default_url).result
             if(title == None or title == '' or self.check_title_isin_csv(title)):
                 tkinter.messagebox.showerror("error", "Title is empty or already used.")
                 return
@@ -284,22 +287,22 @@ class ButtonInformationInputDialog():
                 return
 
             if default_title:
-                return(title, url)
+                return(title, url, bg, fg)
             else:
-                self.add_info_to_csv_and_show_new_button(title, url)
+                self.add_info_to_csv_and_show_new_button(title, url, bg, fg)
 
         except:
             pass
     
-    def add_info_to_csv_and_show_new_button(self, title, url):
+    def add_info_to_csv_and_show_new_button(self, title, url, bg, fg):
         w = self.root.winfo_children()
         button_order = len(w[0].winfo_children()) + 1
         filename = os.path.join(os.getcwd(), 'list.csv')
         if os.path.exists(filename):
             with open(filename, 'a', newline='', encoding="utf-8") as f:
                 output_writer = csv.writer(f)
-                output_writer.writerow([title, url, button_order])
-            ShortCutButton(w[0], [title, url, button_order]) #w[0] is a LabelFrame widget
+                output_writer.writerow([title, url, button_order, bg, fg])
+            ShortCutButton(w[0], [title, url, button_order, bg, fg]) #w[0] is a LabelFrame widget
 
     def check_title_isin_csv(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
