@@ -2,9 +2,6 @@ import csv
 import ctypes
 import input_dialog
 import os
-import pandas as pd
-import re
-import sys
 import tkinter
 import tkinter.simpledialog, tkinter.messagebox
 import webbrowser
@@ -200,12 +197,24 @@ class ShortCutButton(tkinter.Button):
 
     def delete_info_from_csv_and_remove_button(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
-        try:
-            df = pd.read_csv(filename,index_col=0, header=None)
-            df.drop(title, axis=0, inplace=True)
-            df.to_csv(filename, header=False)
-        except:
-            pass
+        
+        """
+        delete specific row without pandas
+        """
+        with open(filename) as instream:
+            # Setup the input
+            file_reader = csv.reader(instream)
+            outstream = []
+            for row in file_reader:
+                outstream.append(row)
+
+        with open(filename, 'w', newline='', encoding="utf-8") as f:
+            header = ["title", "url", "order", "bg", "fg"]
+            output_writer = csv.writer(f)
+            output_writer.writerow(header)
+            for out in outstream:
+                if out[0] != title:
+                    output_writer.writerow(row)
 
         """
         update the order of widgets
@@ -306,12 +315,20 @@ class ButtonInformationInputDialog():
 
     def check_title_isin_csv(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
+        with open(filename) as instream:
+            # Setup the input
+            file_reader = csv.reader(instream)
+            for row in file_reader:
+                if row[0] == title:
+                    return title
+        """
         try:
+
             df = pd.read_csv(filename, index_col=0, header=None)
             return title in df.index.values
         except pd.errors.EmptyDataError:
             return False
-
+        """
 
 if __name__ == "__main__":
     DisplayMainForm()
