@@ -232,9 +232,13 @@ class ShortCutButton(tkinter.Button):
     def modify_button_info(self):
         dialog = ButtonInformationInputDialog(self.root)
         try:
-            title, url = dialog.ask_info(self["text"], self.url)
+            title, url, bg, fg = dialog.ask_info(self["text"], self.url)
             self["text"] = title
             self.url = url
+            self.bg = bg
+            self.fg = fg
+            self["bg"] = bg
+            self["fg"] = fg
             self.get_widget_info()
             self.update_csv_file()
         except:
