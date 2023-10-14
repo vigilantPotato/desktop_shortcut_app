@@ -2,9 +2,6 @@ import csv
 import ctypes
 import input_dialog
 import os
-import pandas as pd
-import re
-import sys
 import tkinter
 import tkinter.simpledialog, tkinter.messagebox
 import webbrowser
@@ -58,13 +55,13 @@ class CreateShortCutButtons():
                 ShortCutButton(master, row)
 
     def create_list(self, filename):
-        initial_row = ["google", "https://google.com", 1]
-        header = ["title", "url", "order"]
+        #initial_row = ["google", "https://google.com", 1, ]
+        header = ["title", "url", "order", "bg", "fg"]
         with open(filename, 'a', newline='', encoding='utf-8') as f:
             output_writer = csv.writer(f)
             output_writer.writerow(header)
-            output_writer.writerow(initial_row)
-        return initial_row
+            #output_writer.writerow(initial_row)
+        #return initial_row
 
 
 class ShortCutButton(tkinter.Button):
@@ -74,16 +71,19 @@ class ShortCutButton(tkinter.Button):
     """
 
     def __init__(self, master, row):
+        self.url = row[1]
+        self.order = int(row[2])
+        self.bg = row[3]
+        self.fg = row[4]
+        self.root = master
         super().__init__(
             master,
             text=row[0],
-            background="cyan",
+            background=self.bg,
+            foreground=self.fg,
             width=15,
             command=self.shortcut,
         )
-        self.url = row[1]
-        self.order = int(row[2])
-        self.root = master
         self.dummy_button = None
         self.y_position = 0
         self.frame_width = 0
@@ -160,12 +160,12 @@ class ShortCutButton(tkinter.Button):
         filename = os.path.join(os.getcwd(), 'list.csv')
         if os.path.exists(filename):
             with open(filename, 'w', newline='', encoding="utf-8") as f:
-                header = ["title", "url", "order"]
+                header = ["title", "url", "order", "bg", "fg"]
                 output_writer = csv.writer(f)
                 output_writer.writerow(header)
                 for i in range(1, len(self.button_info) + 1):
                     b = self.button_info[i]
-                    output_writer.writerow([b["text"], b.url, b.order])
+                    output_writer.writerow([b["text"], b.url, b.order, b["bg"], b["fg"]])
 
     def delete_dummy_button(self):
         if self.dummy_button:
@@ -187,8 +187,8 @@ class ShortCutButton(tkinter.Button):
             self["state"] = "normal"
 
     def mouse_leave(self, event):
-        self["background"] = "cyan"
-        self["foreground"] = "black"
+        self["background"] = self.bg
+        self["foreground"] = self.fg
 
     def shortcut(self):
         if self.url != "":
@@ -197,12 +197,24 @@ class ShortCutButton(tkinter.Button):
 
     def delete_info_from_csv_and_remove_button(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
-        try:
-            df = pd.read_csv(filename,index_col=0, header=None)
-            df.drop(title, axis=0, inplace=True)
-            df.to_csv(filename, header=False)
-        except:
-            pass
+        
+        """
+        delete specific row without pandas
+        """
+        with open(filename) as instream:
+            # Setup the input
+            file_reader = csv.reader(instream)
+            outstream = []
+            for row in file_reader:
+                outstream.append(row)
+
+        with open(filename, 'w', newline='', encoding="utf-8") as f:
+            header = ["title", "url", "order", "bg", "fg"]
+            output_writer = csv.writer(f)
+            output_writer.writerow(header)
+            for out in outstream:
+                if out[0] != title:
+                    output_writer.writerow(row)
 
         """
         update the order of widgets
@@ -220,9 +232,13 @@ class ShortCutButton(tkinter.Button):
     def modify_button_info(self):
         dialog = ButtonInformationInputDialog(self.root)
         try:
-            title, url = dialog.ask_info(self["text"], self.url)
+            title, url, bg, fg = dialog.ask_info(self["text"], self.url, bg=self["bg"], fg=self["fg"])
             self["text"] = title
             self.url = url
+            self.bg = bg
+            self.fg = fg
+            self["bg"] = bg
+            self["fg"] = fg
             self.get_widget_info()
             self.update_csv_file()
         except:
@@ -273,42 +289,51 @@ class ButtonInformationInputDialog():
     def __init__(self, root):
         self.root = root
 
-    def ask_info(self, default_title=None, default_url=None):
+    def ask_info(self, default_title=None, default_url=None, bg=None, fg=None):
         try:
-            title, url = input_dialog.InputDialog(self.root, default_title, default_url).result
-            if(title == None or title == '' or self.check_title_isin_csv(title)):
-                tkinter.messagebox.showerror("error", "Title is empty or already used.")
-                return
+            title, url, bg, fg = input_dialog.InputDialog(self.root, default_title, default_url, bg=bg, fg=fg).result
+            if not default_title:
+                if(title == None or title == '' or self.check_title_isin_csv(title)):
+                    tkinter.messagebox.showerror("error", "Title is empty or already used.")
+                    return
 
             if(url == None or url == ''):
                 return
 
             if default_title:
-                return(title, url)
+                return(title, url, bg, fg)
             else:
-                self.add_info_to_csv_and_show_new_button(title, url)
+                self.add_info_to_csv_and_show_new_button(title, url, bg, fg)
 
         except:
             pass
     
-    def add_info_to_csv_and_show_new_button(self, title, url):
+    def add_info_to_csv_and_show_new_button(self, title, url, bg, fg):
         w = self.root.winfo_children()
         button_order = len(w[0].winfo_children()) + 1
         filename = os.path.join(os.getcwd(), 'list.csv')
         if os.path.exists(filename):
             with open(filename, 'a', newline='', encoding="utf-8") as f:
                 output_writer = csv.writer(f)
-                output_writer.writerow([title, url, button_order])
-            ShortCutButton(w[0], [title, url, button_order]) #w[0] is a LabelFrame widget
+                output_writer.writerow([title, url, button_order, bg, fg])
+            ShortCutButton(w[0], [title, url, button_order, bg, fg]) #w[0] is a LabelFrame widget
 
     def check_title_isin_csv(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
+        with open(filename) as instream:
+            # Setup the input
+            file_reader = csv.reader(instream)
+            for row in file_reader:
+                if row[0] == title:
+                    return title
+        """
         try:
+
             df = pd.read_csv(filename, index_col=0, header=None)
             return title in df.index.values
         except pd.errors.EmptyDataError:
             return False
-
+        """
 
 if __name__ == "__main__":
     DisplayMainForm()
