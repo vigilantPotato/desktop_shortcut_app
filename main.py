@@ -83,6 +83,7 @@ class ShortCutButton(tkinter.Button):
             foreground=self.fg,
             width=15,
             command=self.shortcut,
+            relief="groove"
         )
         self.dummy_button = None
         self.y_position = 0
@@ -181,14 +182,12 @@ class ShortCutButton(tkinter.Button):
                 self.button_info[w.order] = w
 
     def mouse_on(self, event):
-        self["background"] = "cyan4"
-        self["foreground"] = "white"
+        self["relief"] = "solid"
         if self["state"] == "disabled":
             self["state"] = "normal"
 
     def mouse_leave(self, event):
-        self["background"] = self.bg
-        self["foreground"] = self.fg
+        self["relief"] = "groove"
 
     def shortcut(self):
         if self.url != "":
