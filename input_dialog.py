@@ -10,7 +10,7 @@ class InputDialog(tkinter.Toplevel):
     if canceled, return None
     """
     
-    def __init__(self, root, default_title=None, default_url=None):
+    def __init__(self, root, default_title=None, default_url=None, bg=None, fg=None):
         super().__init__(root)
         self.root = root
         self.var = tkinter.StringVar(root)
@@ -18,7 +18,7 @@ class InputDialog(tkinter.Toplevel):
         #demo button
         demo_frame = tkinter.LabelFrame(self, text="Demo button")
         demo_frame.pack()
-        self.demo_button = TestButton(demo_frame, self.var)
+        self.demo_button = TestButton(demo_frame, self.var, default_bg=bg, default_fg=fg)
         self.demo_button.pack(padx=5, pady=5)
 
         #input information frame

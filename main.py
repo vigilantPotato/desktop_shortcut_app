@@ -232,7 +232,7 @@ class ShortCutButton(tkinter.Button):
     def modify_button_info(self):
         dialog = ButtonInformationInputDialog(self.root)
         try:
-            title, url, bg, fg = dialog.ask_info(self["text"], self.url)
+            title, url, bg, fg = dialog.ask_info(self["text"], self.url, bg=self["bg"], fg=self["fg"])
             self["text"] = title
             self.url = url
             self.bg = bg
@@ -289,12 +289,13 @@ class ButtonInformationInputDialog():
     def __init__(self, root):
         self.root = root
 
-    def ask_info(self, default_title=None, default_url=None):
+    def ask_info(self, default_title=None, default_url=None, bg=None, fg=None):
         try:
-            title, url, bg, fg = input_dialog.InputDialog(self.root, default_title, default_url).result
-            if(title == None or title == '' or self.check_title_isin_csv(title)):
-                tkinter.messagebox.showerror("error", "Title is empty or already used.")
-                return
+            title, url, bg, fg = input_dialog.InputDialog(self.root, default_title, default_url, bg=bg, fg=fg).result
+            if not default_title:
+                if(title == None or title == '' or self.check_title_isin_csv(title)):
+                    tkinter.messagebox.showerror("error", "Title is empty or already used.")
+                    return
 
             if(url == None or url == ''):
                 return
