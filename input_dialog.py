@@ -123,10 +123,10 @@ class ColorSelectButton(tkinter.Button):
         self.button = button
 
     def color_select(self):
-        self["state"] = "disable"
-        color = colorchooser.askcolor(title=self["text"])[1]
-        self["state"] = "normal"
         try:
+            self["state"] = "disable"
+            color = colorchooser.askcolor(title=self["text"])[1]
+            self["state"] = "normal"
             if self["text"] == "Background":
                 self.button["bg"] = color
             elif self["text"] == "Text":
