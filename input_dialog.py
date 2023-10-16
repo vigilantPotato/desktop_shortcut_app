@@ -18,7 +18,11 @@ class InputDialog(tkinter.Toplevel):
         #demo button
         demo_frame = tkinter.LabelFrame(self, text="Demo button")
         demo_frame.pack()
-        self.demo_button = TestButton(demo_frame, self.var, default_bg=bg, default_fg=fg)
+        if bg:
+            self.demo_button = TestButton(demo_frame, self.var, default_bg=bg, default_fg=fg)
+        else:
+            self.demo_button = TestButton(demo_frame, self.var)
+
         self.demo_button.pack(padx=5, pady=5)
 
         #input information frame
