@@ -291,19 +291,14 @@ class ButtonInformationInputDialog():
     def ask_info(self, default_title=None, default_url=None, bg=None, fg=None):
         try:
             title, url, bg, fg = input_dialog.InputDialog(self.root, default_title, default_url, bg=bg, fg=fg).result
-            if not default_title:
-                if(title == None or title == '' or self.check_title_isin_csv(title)):
-                    tkinter.messagebox.showerror("error", "Title is empty or already used.")
-                    return
-
-            if(url == None or url == ''):
-                return
-
-            if default_title:
-                return(title, url, bg, fg)
+            
+            if (title == None or title == ''):
+                tkinter.messagebox.showerror("error", "Title is empty.")
             else:
-                self.add_info_to_csv_and_show_new_button(title, url, bg, fg)
-
+                if default_title:
+                    return(title, url, bg, fg)
+                else:
+                    self.add_info_to_csv_and_show_new_button(title, url, bg, fg)
         except:
             pass
     
