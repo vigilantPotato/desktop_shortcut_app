@@ -112,8 +112,10 @@ class ShortCutButton(tkinter.Button):
             self.dummy_button = tkinter.Button(
                 self.root,
                 text = self["text"],
-                bg = "red",
+                bg = self["bg"],
+                fg = self["fg"],
                 width = self["width"],
+                relief = "flat"
             )
             self.frame_widthx = self.button_info[1].winfo_rootx() - self.root.winfo_rootx()
             self.frame_widthy = self.button_info[1].winfo_rooty() - self.root.winfo_rooty()
