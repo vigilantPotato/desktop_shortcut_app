@@ -13,14 +13,13 @@ class DisplayMainForm():
     The form appears at the top-right of the monitor.
     """
 
-    def __init__(self):
-        ctypes.windll.shcore.SetProcessDpiAwareness(1)
-        self.root = tkinter.Tk()
-        l = LabelFrame(self.root)
-        c = CreateNewButton(self.root, l)
-        c.bind("<Map>", self.set_window_position_when_createnew_button_is_displayed)
-        self.root.mainloop()
-    
+    def __init__(self, root, text="main"):
+        self.root = root
+        l = LabelFrame(root, text)
+        c = CreateNewButton(root, l)
+        if text == "main":
+            c.bind("<Map>", self.set_window_position_when_createnew_button_is_displayed)
+        
     def set_window_position_when_createnew_button_is_displayed(self, event):
         frame = self.root.winfo_rootx() - self.root.winfo_x()
         x = self.root.winfo_screenwidth() - self.root.winfo_width()
@@ -28,7 +27,7 @@ class DisplayMainForm():
 
 
 class LabelFrame(tkinter.LabelFrame):
-    def __init__(self, master, text="main"):
+    def __init__(self, master, text):
         super().__init__(
             master,
             text=text,
@@ -297,4 +296,7 @@ class ButtonInformationInputDialog():
                     return title
 
 if __name__ == "__main__":
-    DisplayMainForm()
+    ctypes.windll.shcore.SetProcessDpiAwareness(1)
+    root = tkinter.Tk()
+    DisplayMainForm(root)
+    root.mainloop()
