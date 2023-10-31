@@ -16,8 +16,8 @@ class DisplayMainForm():
     def __init__(self):
         ctypes.windll.shcore.SetProcessDpiAwareness(1)
         self.root = tkinter.Tk()
-        short_cut_buttons_in_label = CreateShortCutButtons(self.root)
-        c = CreateNewButton(self.root)
+        l = LabelFrame(self.root)
+        c = CreateNewButton(self.root, l)
         c.bind("<Map>", self.set_window_position_when_createnew_button_is_displayed)
         self.root.mainloop()
     
@@ -26,22 +26,19 @@ class DisplayMainForm():
         x = self.root.winfo_screenwidth() - self.root.winfo_width()
         self.root.geometry('+%d+%d' % (x - frame, 0))
 
-class CreateShortCutButtons():
-    """
-    read csv file and create ShortCut buttons in a LabelFrame.
-    csv file name is list.csv
-    """
 
-    def __init__(self, master):
-        self.label = tkinter.LabelFrame(
-            master=master,
-            text="short cut",
+class LabelFrame(tkinter.LabelFrame):
+    def __init__(self, master, text="main"):
+        super().__init__(
+            master,
+            text=text,
             relief="ridge",
             )
-        self.label.pack(ipadx=5, ipady=5)
-        self.create_shortcut_buttons(self.label)
+        self.button_info = []
+        self.create_shortcut_buttons()
+        self.pack()
 
-    def create_shortcut_buttons(self, master):
+    def create_shortcut_buttons(self):
         filename = os.path.join(os.getcwd(), 'list.csv')
         if not os.path.exists(filename):
             self.create_list(filename)
@@ -49,19 +46,34 @@ class CreateShortCutButtons():
             file_reader = csv.reader(open_file)
             header = next(file_reader)
             for row in file_reader:
-                ShortCutButton(master, row)
+                button = ShortCutButton(self, row)
+                self.button_info.append(button)
             if file_reader.line_num == 0:
                 row = self.create_list(filename)
-                ShortCutButton(master, row)
+                ShortCutButton(self, row)
+
+    def update_shortcut_buttons(self):
+        """
+        open list.csv and update button information
+        """
+        filename = os.path.join(os.getcwd(), 'list.csv')
+        if not os.path.exists(filename):
+            self.create_list(filename)
+        with open(filename, 'r', encoding="utf-8") as open_file:
+            file_reader = csv.reader(open_file)
+            header = next(file_reader)
+            for i, row in enumerate(file_reader):
+                self.button_info[i]["text"] = row[0]
+                self.button_info[i].url = row[1]
+                self.button_info[i]["bg"] = row[2]
+                self.button_info[i]["fg"] = row[3]
 
     def create_list(self, filename):
-        #initial_row = ["google", "https://google.com", 1, ]
-        header = ["title", "url", "order", "bg", "fg"]
+        header = ["title", "url", "bg", "fg"]
         with open(filename, 'a', newline='', encoding='utf-8') as f:
             output_writer = csv.writer(f)
             output_writer.writerow(header)
-            #output_writer.writerow(initial_row)
-        #return initial_row
+    
 
 
 class ShortCutButton(tkinter.Button):
@@ -70,22 +82,26 @@ class ShortCutButton(tkinter.Button):
     open the url when clicked with webbrowser module    
     """
 
+    sc_buttons_info = []
+    dummy_button = False
+
     def __init__(self, master, row):
+        self.sc_buttons_info.append(row)
+        self.text = row[0]
         self.url = row[1]
-        self.order = int(row[2])
-        self.bg = row[3]
-        self.fg = row[4]
+        self.bg = row[2]
+        self.fg = row[3]
         self.root = master
         super().__init__(
             master,
-            text=row[0],
+            text=self.text,
             background=self.bg,
             foreground=self.fg,
             width=15,
             command=self.shortcut,
             relief="groove"
         )
-        self.dummy_button = None
+        self.swap_count = 0
         self.y_position = 0
         self.frame_width = 0
         self.dummy_x = 0
@@ -96,92 +112,72 @@ class ShortCutButton(tkinter.Button):
         self.pack(pady=1)
     
     def when_released(self, event):
-        self.delete_dummy_button()
-        if self.dummy_x < 0:
-            self.delete_info_from_csv_and_remove_button(self["text"])
-            self.destroy()
-        elif self.dummy_x > self.winfo_width():
-            self.modify_button_info()
-        self.dummy_x = 0
+        if self.swap_count == 0:
+            if self.dummy_x < - self.winfo_width():
+                self.delete_info_from_csv_and_remove_button(self["text"])
+                self.destroy()
+            elif self.dummy_x > self.winfo_width()/2:
+                self.modify_button_info()
+        
+        if self.dummy_button is not False:
+            self.dummy_x = 0
+            self.dummy_button.destroy()
+            self.dummy_button = False
         
     def when_dragged(self, event):
         #ダミーボタンがない場合、全ウィジェット情報を取得後にダミー生成、上下ボタンの情報取得
         if not self.dummy_button:
-            self.get_widget_info()      #全widgetの情報を辞書型で取得 key: order, value: button widget
-            self["state"] = "disable"   #自身をdisable
+            self.swap_count = 0        
             self.dummy_button = tkinter.Button(
                 self.root,
                 text = self["text"],
                 bg = self["bg"],
                 fg = self["fg"],
                 width = self["width"],
-                relief = "flat"
-            )
-            self.frame_widthx = self.button_info[1].winfo_rootx() - self.root.winfo_rootx()
-            self.frame_widthy = self.button_info[1].winfo_rooty() - self.root.winfo_rooty()
+                )
+
+            self.button_info = [self["text"], self.url, self["bg"], self["fg"]]  
+            self["state"] = "disable"   #自身をdisable
+            
+            self.frame_widthx = self.root.button_info[0].winfo_rootx() - self.root.winfo_rootx()
+            self.frame_widthy = self.root.button_info[0].winfo_rooty() - self.root.winfo_rooty()
 
         #dragされたらdummy_buttonをポインタに合わせて表示
-        x_dummy = self.winfo_x() - self.frame_widthx + event.x
-        y_dummy = self.winfo_y() - self.frame_widthy + event.y
+        x_dummy = self.winfo_x() - self.frame_widthx + event.x - self.winfo_width() / 2
+        y_dummy = self.winfo_y() - self.frame_widthy + event.y - self.winfo_height() / 2
+
         self.dummy_button.place(
             x = x_dummy,
             y = y_dummy,
         )
         self.dummy_x = self.dummy_button.winfo_x()
         
-        if len(self.button_info) != 1:
-            if self.order == 1:
-                above_y = None
-                below_y = self.button_info[self.order + 1].winfo_y()
-            elif self.order == len(self.widgets):
-                above_y = self.button_info[self.order - 1].winfo_y()
-                below_y = None
-            else:
-                above_y = self.button_info[self.order - 1].winfo_y()
-                below_y = self.button_info[self.order + 1].winfo_y()
+        if event.y < self.swap_count * self.winfo_height() and self.sc_buttons_info.index(self.button_info) != 0:
+            self.swap_count -= 1
+            index = self.sc_buttons_info.index(self.button_info)
+            self.swap_button(index, index - 1)
 
-            if above_y is not None and 0 < self.dummy_button.winfo_y() < self.winfo_y():
-                self.swap_button(self.order - 1)
-            elif  below_y is not None and 0 < self.dummy_button.winfo_y() > below_y:
-                self.swap_button(self.order + 1)
-    
-    def swap_button(self, y_target):
-        """
-        ダミーを削除し、y_targetとselfを入れ替え
-        """
-        self.delete_dummy_button()
-        self.button_info[y_target].order = self.order
-        self.order = y_target
-        self.get_widget_info()
-        for w in self.widgets:
-            w.pack_forget()
-        for i in range(1, len(self.button_info) + 1):
-            self.button_info[i].pack(pady=1)
+        if event.y > (self.swap_count + 1) * self.winfo_height() and self.sc_buttons_info.index(self.button_info) != len(self.sc_buttons_info) - 1:
+            self.swap_count += 1
+            index = self.sc_buttons_info.index(self.button_info)
+            self.swap_button(index, index + 1)
+
+    def swap_button(self, self_index, target_index):
+        target_info = self.sc_buttons_info[target_index]    #入れ替え対象
+        self.sc_buttons_info[target_index] = self.button_info    #対象の情報を上書き
+        self.sc_buttons_info[self_index] = target_info
         self.update_csv_file()
+        self.root.update_shortcut_buttons()
 
     def update_csv_file(self):
         filename = os.path.join(os.getcwd(), 'list.csv')
         if os.path.exists(filename):
             with open(filename, 'w', newline='', encoding="utf-8") as f:
-                header = ["title", "url", "order", "bg", "fg"]
+                header = ["title", "url", "bg", "fg"]
                 output_writer = csv.writer(f)
                 output_writer.writerow(header)
-                for i in range(1, len(self.button_info) + 1):
-                    b = self.button_info[i]
-                    output_writer.writerow([b["text"], b.url, b.order, b["bg"], b["fg"]])
-
-    def delete_dummy_button(self):
-        if self.dummy_button:
-            self.dummy_button.destroy()
-            self.dummy_button = None
-    
-    def get_widget_info(self):
-        self.widgets = []
-        self.widgets = self.root.winfo_children()
-        self.button_info = {}
-        for w in self.widgets:
-            if w.winfo_ismapped():
-                self.button_info[w.order] = w
+                for row in self.sc_buttons_info:
+                    output_writer.writerow(row)
 
     def mouse_on(self, event):
         self["relief"] = "solid"
@@ -193,54 +189,30 @@ class ShortCutButton(tkinter.Button):
 
     def shortcut(self):
         if self.url != "":
-            print(self["text"], self.url)
+            print(self.root.button_info)
             #webbrowser.open(self.url)
 
     def delete_info_from_csv_and_remove_button(self, title):
-        filename = os.path.join(os.getcwd(), 'list.csv')
-        
-        """
-        delete specific row without pandas
-        """
-        with open(filename) as instream:
-            # Setup the input
-            file_reader = csv.reader(instream)
-            outstream = []
-            for row in file_reader:
-                outstream.append(row)
-
-        with open(filename, 'w', newline='', encoding="utf-8") as f:
-            header = ["title", "url", "order", "bg", "fg"]
-            output_writer = csv.writer(f)
-            output_writer.writerow(header)
-            for out in outstream:
-                if out[0] != title:
-                    output_writer.writerow(row)
-
-        """
-        update the order of widgets
-        """
-        del self.button_info[self.order]
-        for i in range(1, len(self.button_info) + 1):
-            
-            if i >= self.order:
-                self.button_info[i] = self.button_info[i+1]
-                self.button_info[i].order = i
-                del self.button_info[i+1]
-
+        for row in self.sc_buttons_info:
+            print(row)
+            if row[0] == title:
+                self.sc_buttons_info.remove(row)
+                self.root.button_info.remove(self)
+                break
+        self.destroy()
         self.update_csv_file()
 
     def modify_button_info(self):
-        dialog = ButtonInformationInputDialog(self.root)
         try:
-            title, url, bg, fg = dialog.ask_info(self["text"], self.url, bg=self["bg"], fg=self["fg"])
-            self["text"] = title
-            self.url = url
-            self.bg = bg
-            self.fg = fg
-            self["bg"] = bg
-            self["fg"] = fg
-            self.get_widget_info()
+            dialog = ButtonInformationInputDialog(self.root)
+            current_info = [self["text"], self.url, self["bg"], self["fg"]]
+            index = self.sc_buttons_info.index(current_info)
+            new_info = dialog.ask_info(self["text"], self.url, bg=self["bg"], fg=self["fg"])
+            self.sc_buttons_info[index] = new_info
+            self["text"] = new_info[0]
+            self.url = new_info[1]
+            self["bg"] = new_info[2]
+            self["fg"] = new_info[3]
             self.update_csv_file()
         except:
             pass
@@ -252,7 +224,7 @@ class CreateNewButton(tkinter.Button):
     the information is saved to list.csv and restart this script
     """
 
-    def __init__(self, master):
+    def __init__(self, master, labelframe):
         self.root = master
         super().__init__(
             master,
@@ -261,13 +233,16 @@ class CreateNewButton(tkinter.Button):
             width=15,
             command=self.ask_info,
         )
+        self.labelframe = labelframe
         self.bind("<Motion>", self.mouse_on)
         self.bind("<Leave>", self.mouse_leave)
         self.pack(pady=1)
     
     def ask_info(self):
-        dialog = ButtonInformationInputDialog(self.root)
-        dialog.ask_info()
+        dialog = ButtonInformationInputDialog(self.labelframe)
+        info = dialog.ask_info()
+        new_button = ShortCutButton(self.labelframe, info)
+        self.labelframe.button_info.append(new_button)
 
     def mouse_on(self, event):
         self["background"] = "green"
@@ -298,22 +273,20 @@ class ButtonInformationInputDialog():
                 tkinter.messagebox.showerror("error", "Title is empty.")
             else:
                 if default_title:
-                    return(title, url, bg, fg)
+                    return([title, url, bg, fg])
                 else:
-                    self.add_info_to_csv_and_show_new_button(title, url, bg, fg)
+                    self.add_info_to_csv(title, url, bg, fg)
+                    return([title, url, bg, fg])
         except:
             pass
     
-    def add_info_to_csv_and_show_new_button(self, title, url, bg, fg):
-        w = self.root.winfo_children()
-        button_order = len(w[0].winfo_children()) + 1
+    def add_info_to_csv(self, title, url, bg, fg):
         filename = os.path.join(os.getcwd(), 'list.csv')
         if os.path.exists(filename):
             with open(filename, 'a', newline='', encoding="utf-8") as f:
                 output_writer = csv.writer(f)
-                output_writer.writerow([title, url, button_order, bg, fg])
-            ShortCutButton(w[0], [title, url, button_order, bg, fg]) #w[0] is a LabelFrame widget
-
+                output_writer.writerow([title, url, bg, fg])
+            
     def check_title_isin_csv(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
         with open(filename) as instream:
@@ -322,14 +295,6 @@ class ButtonInformationInputDialog():
             for row in file_reader:
                 if row[0] == title:
                     return title
-        """
-        try:
-
-            df = pd.read_csv(filename, index_col=0, header=None)
-            return title in df.index.values
-        except pd.errors.EmptyDataError:
-            return False
-        """
 
 if __name__ == "__main__":
     DisplayMainForm()
