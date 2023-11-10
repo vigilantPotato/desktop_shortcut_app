@@ -36,6 +36,7 @@ class LabelFrame(tkinter.LabelFrame):
         self.button_info = []
         self.create_shortcut_buttons()
         self.pack()
+        print(len(self.button_info))
 
     def create_shortcut_buttons(self):
         filename = os.path.join(os.getcwd(), 'list.csv')
@@ -188,12 +189,14 @@ class ShortCutButton(tkinter.Button):
 
     def shortcut(self):
         if self.url != "":
-            print(self.root.button_info)
+            print(len(self.root.button_info), self.root)
             #webbrowser.open(self.url)
+        else:
+            new_window = tkinter.Toplevel()
+            DisplayMainForm(new_window, self["text"])
 
     def delete_info_from_csv_and_remove_button(self, title):
         for row in self.sc_buttons_info:
-            print(row)
             if row[0] == title:
                 self.sc_buttons_info.remove(row)
                 self.root.button_info.remove(self)
