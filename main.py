@@ -46,8 +46,9 @@ class LabelFrame(tkinter.LabelFrame):
             file_reader = csv.reader(open_file)
             header = next(file_reader)
             for row in file_reader:
-                button = ShortCutButton(self, row)
-                self.button_info.append(button)
+                if self["text"] == row[4]:
+                    button = ShortCutButton(self, row)
+                    self.button_info.append(button)
             if file_reader.line_num == 0:
                 row = self.create_list(filename)
                 ShortCutButton(self, row)
@@ -67,9 +68,10 @@ class LabelFrame(tkinter.LabelFrame):
                 self.button_info[i].url = row[1]
                 self.button_info[i]["bg"] = row[2]
                 self.button_info[i]["fg"] = row[3]
+                self.button_info[i]["label"] = row[4]
 
     def create_list(self, filename):
-        header = ["title", "url", "bg", "fg"]
+        header = ["title", "url", "bg", "fg", "label"]
         with open(filename, 'a', newline='', encoding='utf-8') as f:
             output_writer = csv.writer(f)
             output_writer.writerow(header)
@@ -91,6 +93,7 @@ class ShortCutButton(tkinter.Button):
         self.url = row[1]
         self.bg = row[2]
         self.fg = row[3]
+        self.label = row[4]
         self.root = master
         super().__init__(
             master,
@@ -173,7 +176,7 @@ class ShortCutButton(tkinter.Button):
         filename = os.path.join(os.getcwd(), 'list.csv')
         if os.path.exists(filename):
             with open(filename, 'w', newline='', encoding="utf-8") as f:
-                header = ["title", "url", "bg", "fg"]
+                header = ["title", "url", "bg", "fg", "label"]
                 output_writer = csv.writer(f)
                 output_writer.writerow(header)
                 for row in self.sc_buttons_info:
@@ -243,6 +246,7 @@ class CreateNewButton(tkinter.Button):
     def ask_info(self):
         dialog = ButtonInformationInputDialog(self.labelframe)
         info = dialog.ask_info()
+        print(info)
         new_button = ShortCutButton(self.labelframe, info)
         self.labelframe.button_info.append(new_button)
 
@@ -268,26 +272,24 @@ class ButtonInformationInputDialog():
         self.root = root
 
     def ask_info(self, default_title=None, default_url=None, bg=None, fg=None):
-        try:
-            title, url, bg, fg = input_dialog.InputDialog(self.root, default_title, default_url, bg=bg, fg=fg).result
-            
-            if (title == None or title == ''):
-                tkinter.messagebox.showerror("error", "Title is empty.")
+        print(self.root["text"])
+        title, url, bg, fg = input_dialog.InputDialog(self.root, default_title, default_url, bg=bg, fg=fg).result
+        
+        if (title == None or title == ''):
+            tkinter.messagebox.showerror("error", "Title is empty.")
+        else:
+            if default_title:
+                return([title, url, bg, fg, self.root["text"]])
             else:
-                if default_title:
-                    return([title, url, bg, fg])
-                else:
-                    self.add_info_to_csv(title, url, bg, fg)
-                    return([title, url, bg, fg])
-        except:
-            pass
+                self.add_info_to_csv(title, url, bg, fg, self.root["text"])
+                return([title, url, bg, fg, self.root["text"]])
     
-    def add_info_to_csv(self, title, url, bg, fg):
+    def add_info_to_csv(self, title, url, bg, fg, label):
         filename = os.path.join(os.getcwd(), 'list.csv')
         if os.path.exists(filename):
             with open(filename, 'a', newline='', encoding="utf-8") as f:
                 output_writer = csv.writer(f)
-                output_writer.writerow([title, url, bg, fg])
+                output_writer.writerow([title, url, bg, fg, label])
             
     def check_title_isin_csv(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
