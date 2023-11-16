@@ -115,7 +115,7 @@ class LabelFrame(tkinter.LabelFrame):
         
         #update csv
         with open(filename, 'w', newline='', encoding="utf-8") as f:
-            header = ["title", "url", "bg", "fg", "label", "order"]
+            header = ["title", "url", "bg", "fg", "label"]
             output_writer = csv.writer(f)
             output_writer.writerow(header)
             for row in to_csv_info:
@@ -230,7 +230,7 @@ class ShortCutButton(tkinter.Button):
 
     def shortcut(self):
         if self.url != "":
-            print(self["text"], self.root.button_info)
+            print(self["text"], self.url, self["bg"], self["fg"], self.label)
             #webbrowser.open(self.url)
         else:
             new_window = tkinter.Toplevel()
@@ -256,7 +256,7 @@ class ShortCutButton(tkinter.Button):
             self.url = new_info[1]
             self["bg"] = new_info[2]
             self["fg"] = new_info[3]
-            self.update_csv_file()
+            self.root.update_csv()
         except:
             pass
 
