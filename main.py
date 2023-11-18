@@ -13,17 +13,28 @@ class DisplayMainForm():
     The form appears at the top-right of the monitor.
     """
 
-    def __init__(self, root, text="main"):
+    def __init__(self, root, button=None):
         self.root = root
+        self.button = button
+        if button:  #sub-window
+            text = button["text"]
+        else:       #main-window
+            text = "main"
+        
         l = LabelFrame(root, text)
         c = CreateNewButton(root, l)
-        if text == "main":
-            c.bind("<Map>", self.set_window_position_when_createnew_button_is_displayed)
+        c.bind("<Map>", self.set_window_position_when_createnew_button_is_displayed)
         
     def set_window_position_when_createnew_button_is_displayed(self, event):
-        frame = self.root.winfo_rootx() - self.root.winfo_x()
-        x = self.root.winfo_screenwidth() - self.root.winfo_width()
-        self.root.geometry('+%d+%d' % (x - frame, 0))
+        if self.button: #sub-window
+            frame = self.root.winfo_rootx() - self.root.winfo_x()
+            x = self.root.winfo_screenwidth() - 2 * self.root.winfo_width()
+            y = self.button.winfo_y()
+        else:   #main-window
+            frame = self.root.winfo_rootx() - self.root.winfo_x()
+            x = self.root.winfo_screenwidth() - self.root.winfo_width()
+            y=0
+        self.root.geometry('+%d+%d' % (x - frame, y))
 
 
 class LabelFrame(tkinter.LabelFrame):
@@ -218,7 +229,7 @@ class ShortCutButton(tkinter.Button):
             #webbrowser.open(self.url)
         else:
             new_window = tkinter.Toplevel()
-            DisplayMainForm(new_window, self["text"])
+            DisplayMainForm(new_window, self)
 
     def delete_info_from_csv_and_remove_button(self, title):
         self.root.button_info.remove(self)
