@@ -302,9 +302,9 @@ class ButtonInformationInputDialog():
         if (title == None or title == ''):
             tkinter.messagebox.showerror("error", "Title is empty.")
         else:
-            if default_title:
+            if default_title:   #modify button information
                 return([title, url, bg, fg, self.root["text"]])
-            else:
+            else:               #create new button
                 self.add_info_to_csv(title, url, bg, fg, self.root["text"])
                 return([title, url, bg, fg, self.root["text"]])
     
