@@ -270,9 +270,10 @@ class CreateNewButton(tkinter.Button):
     def ask_info(self):
         dialog = ButtonInformationInputDialog(self.labelframe)
         info = dialog.ask_info()
-        new_button = ShortCutButton(self.labelframe, info)
-        new_button.pack(pady=1)
-        self.labelframe.button_info.append(new_button)
+        if info:
+            new_button = ShortCutButton(self.labelframe, info)
+            new_button.pack(pady=1)
+            self.labelframe.button_info.append(new_button)
 
     def mouse_on(self, event):
         self["background"] = "green"
