@@ -298,9 +298,11 @@ class ButtonInformationInputDialog():
 
     def ask_info(self, default_title=None, default_url=None, bg=None, fg=None):
         title, url, bg, fg = input_dialog.InputDialog(self.root, default_title, default_url, bg=bg, fg=fg).result
-        
+        print(self.root["text"])
         if (title == None or title == ''):
             tkinter.messagebox.showerror("error", "Title is empty.")
+        elif (self.root["text"] != "main" and url == ''):
+            tkinter.messagebox.showerror("error", "URL is empty.")
         else:
             if default_title:   #modify button information
                 return([title, url, bg, fg, self.root["text"]])
