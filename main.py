@@ -308,17 +308,20 @@ class ButtonInformationInputDialog():
         self.root = root
 
     def ask_info(self, default_title=None, default_url=None, bg=None, fg=None):
-        title, url, bg, fg = input_dialog.InputDialog(self.root, default_title, default_url, bg=bg, fg=fg).result
-        if (title == None or title == ''):
-            tkinter.messagebox.showerror("error", "Title is empty.")
-        elif (self.root["text"] != "main" and url == ''):
-            tkinter.messagebox.showerror("error", "URL is empty.")
-        else:
-            if default_title:   #modify button information
-                return([title, url, bg, fg, self.root["text"]])
-            else:               #create new button
-                self.add_info_to_csv(title, url, bg, fg, self.root["text"])
-                return([title, url, bg, fg, self.root["text"]])
+        #title, url, bg, fg = input_dialog.InputDialog(self.root, default_title, default_url, bg=bg, fg=fg).result
+        result = input_dialog.InputDialog(self.root, default_title, default_url, bg=bg, fg=fg).result
+        if result:
+            if (result[0] == None or result[0] == ''):
+                tkinter.messagebox.showerror("error", "Title is empty.")
+            elif (self.root["text"] != "main" and result[1] == ''):
+                tkinter.messagebox.showerror("error", "URL is empty.")
+            else:
+                result.append(self.root["text"])
+                if default_title:   #modify button information
+                    return(result)
+                else:               #create new button
+                    self.add_info_to_csv(result)
+                    return(result)
     
     def add_info_to_csv(self, title, url, bg, fg, label):
         filename = os.path.join(os.getcwd(), 'list.csv')
