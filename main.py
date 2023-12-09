@@ -323,12 +323,12 @@ class ButtonInformationInputDialog():
                     self.add_info_to_csv(result)
                     return(result)
     
-    def add_info_to_csv(self, title, url, bg, fg, label):
+    def add_info_to_csv(self, result):
         filename = os.path.join(os.getcwd(), 'list.csv')
         if os.path.exists(filename):
             with open(filename, 'a', newline='', encoding="utf-8") as f:
                 output_writer = csv.writer(f)
-                output_writer.writerow([title, url, bg, fg, label])
+                output_writer.writerow(result)
             
     def check_title_isin_csv(self, title):
         filename = os.path.join(os.getcwd(), 'list.csv')
