@@ -87,7 +87,7 @@ class InputDialog(tkinter.Toplevel):
         self.wait_window()
     
     def finished(self):
-        self.result = self.entry.get(), self.entry2.get(), self.demo_button["bg"], self.demo_button["fg"]
+        self.result = [self.entry.get(), self.entry2.get(), self.demo_button["bg"], self.demo_button["fg"]]
         self.destroy()
     
     def canceled(self):
