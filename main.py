@@ -328,10 +328,12 @@ class ButtonInformationInputDialog():
         #title, url, bg, fg = input_dialog.InputDialog(self.root, default_title, default_url, bg=bg, fg=fg).result
         result = input_dialog.InputDialog(self.root, default_title, default_url, bg=bg, fg=fg).result
         if result:
-            if (result[0] == None or result[0] == ''):
+            if (result[0] == None or result[0] == ''):  #check empty
                 tkinter.messagebox.showerror("error", "Title is empty.")
-            elif (self.root["text"] != "main" and result[1] == ''):
+            elif (self.root["text"] != "main" and result[1] == ''): #check empty
                 tkinter.messagebox.showerror("error", "URL is empty.")
+            elif (result[0] == self.check_title_isin_csv(result[0])):   #check title duplicate
+                tkinter.messagebox.showerror("error", "This title is already used.")
             else:
                 result.append(self.root["text"])
                 if default_title:   #modify button information
