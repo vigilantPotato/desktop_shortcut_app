@@ -167,8 +167,10 @@ class ShortCutButton(tkinter.Button):
     def when_released(self, event):
         if self.swap_count == 0:
             if self.dummy_x < - self.winfo_width():
-                self.delete_info_from_csv_and_remove_button(self["text"])
-                self.destroy()
+                ans = tkinter.messagebox.askyesno("confirm", "Delete " + self["text"] + " button?")
+                if ans:
+                    self.delete_info_from_csv_and_remove_button(self["text"])
+                    self.destroy()
             elif self.dummy_x > self.winfo_width()/2:
                 self.modify_button_info()
         
