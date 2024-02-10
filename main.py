@@ -241,6 +241,16 @@ class ShortCutButton(tkinter.Button):
         self.destroy()
 
     def modify_button_info(self):
+        is_sub_menu_button = False
+        if self.url == "":
+            filename = "list.csv"
+            with open(filename, 'r', encoding="utf-8") as open_file:
+                file_reader = csv.reader(open_file)
+                header = next(file_reader)
+                for row in file_reader:
+                    if row[4] == self["text"]:
+                        is_sub_menu_button = True
+                        break
         try:
             dialog = ButtonInformationInputDialog(self.root)
             new_info = dialog.ask_info(
@@ -249,11 +259,16 @@ class ShortCutButton(tkinter.Button):
                 bg=self["bg"],
                 fg=self["fg"]
             )
-            self["text"] = new_info[0]
-            self.url = new_info[1]
-            self["bg"] = new_info[2]
-            self["fg"] = new_info[3]
-            self.root.update_csv()
+
+            if is_sub_menu_button:
+                if self["text"] != new_info[0] or self.url != new_info[1]:
+                    tkinter.messagebox.showerror("error", "Please remove child button information.")
+            else:
+                self["text"] = new_info[0]
+                self.url = new_info[1]
+                self["bg"] = new_info[2]
+                self["fg"] = new_info[3]
+                self.root.update_csv()
         except:
             pass
 
