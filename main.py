@@ -227,8 +227,8 @@ class ShortCutButton(tkinter.Button):
 
     def shortcut(self):
         if self.url != "":
-            print(self["text"], self.url, self["bg"], self["fg"], self.label)
-            #webbrowser.open(self.url)
+            #print(self["text"], self.url, self["bg"], self["fg"], self.label)
+            webbrowser.open(self.url)
         else:
             new_window = tkinter.Toplevel()
             DisplayMainForm(new_window, self)
